@@ -87,11 +87,11 @@ nav = st.sidebar.radio(
 ],
 index=[
 "Home",
-"🧠AI Disease Prediction",
-"📊 Patient Risk Timeline",
-"📑AI Report",
-"💬AI Medical Assistant",
-"👨‍⚕Doctor Recommendation"
+"AI Disease Prediction",
+"Patient Risk Timeline",
+"AI Report",
+"AI Medical Assistant",
+"Doctor Recommendation"
 ].index(st.session_state.page)
 )
 
@@ -326,4 +326,5 @@ if st.session_state.page == "Doctor Recommendation":
             doc=doctors.get(disease,"General Physician")
             st.success(f"Recommended Specialist: {doc}")
             st.write(f"Patients with {disease} should consult a {doc}.")
+
 
