@@ -40,11 +40,11 @@ animation: float 3s ease-in-out infinite;
 100%{transform:translateY(0px)}
 }
 
-/* FEATURE BOXES */
+/* UPDATED FEATURE BOX COLOR */
 
 .feature-box{
-background:linear-gradient(135deg,#d6ecff,#c9f7e8);
-color:#003366;
+background:linear-gradient(135deg,#d8ecff,#e8fff6);
+color:#002b5c;
 padding:20px;
 border-radius:15px;
 box-shadow:0px 4px 15px rgba(0,0,0,0.1);
@@ -56,18 +56,7 @@ font-weight:600;
 
 .feature-box:hover{
 transform:scale(1.05);
-background:linear-gradient(135deg,#bde0ff,#b8f5e3);
-}
-
-/* SYSTEM FEATURE PANEL */
-
-.system-box{
-background:linear-gradient(135deg,#e8f4ff,#e6fff3);
-padding:25px;
-border-radius:15px;
-color:#003366;
-font-size:18px;
-box-shadow:0px 5px 18px rgba(0,0,0,0.12);
+background:linear-gradient(135deg,#bfe2ff,#c8ffe8);
 }
 
 </style>
@@ -136,6 +125,7 @@ diseases = [
 ]
 
 doctors = {
+
 "Diabetes":"Endocrinologist",
 "Heart Disease":"Cardiologist",
 "Glaucoma":"Ophthalmologist",
@@ -166,6 +156,7 @@ doctors = {
 }
 
 conditions = [
+
 "Diabetes","Hypertension","Heart Surgery","Kidney Stones",
 "Thyroid Disorder","Asthma","Allergy","Obesity",
 "COVID Infection","Cancer Treatment","Fracture Surgery",
@@ -188,60 +179,55 @@ if st.session_state.page == "Home":
 
     st.write("")
 
-    left, right = st.columns([2,1])
+    col1,col2,col3 = st.columns(3)
 
-    with left:
+    with col1:
+        st.markdown('<div class="feature-box">🧠 AI Disease Prediction</div>', unsafe_allow_html=True)
+        if st.button("AI Disease Prediction"):
+            st.session_state.page="AI Disease Prediction"
+            st.rerun()
 
-        col1,col2,col3 = st.columns(3)
+    with col2:
+        st.markdown('<div class="feature-box">📊 Patient Risk Timeline</div>', unsafe_allow_html=True)
+        if st.button("Patient Risk Timeline"):
+            st.session_state.page="Patient Risk Timeline"
+            st.rerun()
 
-        with col1:
-            st.markdown('<div class="feature-box">🧠 AI Disease Prediction</div>', unsafe_allow_html=True)
-            if st.button("AI Disease Prediction"):
-                st.session_state.page="AI Disease Prediction"
-                st.rerun()
+    with col3:
+        st.markdown('<div class="feature-box">📑 AI Report</div>', unsafe_allow_html=True)
+        if st.button("AI Report"):
+            st.session_state.page="AI Report"
+            st.rerun()
 
-        with col2:
-            st.markdown('<div class="feature-box">📊 Patient Risk Timeline</div>', unsafe_allow_html=True)
-            if st.button("Patient Risk Timeline"):
-                st.session_state.page="Patient Risk Timeline"
-                st.rerun()
+    col4,col5 = st.columns(2)
 
-        with col3:
-            st.markdown('<div class="feature-box">📑 AI Report</div>', unsafe_allow_html=True)
-            if st.button("AI Report"):
-                st.session_state.page="AI Report"
-                st.rerun()
+    with col4:
+        st.markdown('<div class="feature-box">💬 AI Medical Assistant</div>', unsafe_allow_html=True)
+        if st.button("AI Medical Assistant"):
+            st.session_state.page="AI Medical Assistant"
+            st.rerun()
 
-        col4,col5 = st.columns(2)
+    with col5:
+        st.markdown('<div class="feature-box">👨‍⚕ Doctor Recommendation</div>', unsafe_allow_html=True)
+        if st.button("Doctor Recommendation"):
+            st.session_state.page="Doctor Recommendation"
+            st.rerun()
 
-        with col4:
-            st.markdown('<div class="feature-box">💬 AI Medical Assistant</div>', unsafe_allow_html=True)
-            if st.button("AI Medical Assistant"):
-                st.session_state.page="AI Medical Assistant"
-                st.rerun()
+    st.write("")
+    st.subheader("🏥 What This System Can Do")
 
-        with col5:
-            st.markdown('<div class="feature-box">👨‍⚕ Doctor Recommendation</div>', unsafe_allow_html=True)
-            if st.button("Doctor Recommendation"):
-                st.session_state.page="Doctor Recommendation"
-                st.rerun()
-
-    with right:
-
-        st.markdown("""
-        <div class="system-box">
-        <h3>🏥 What This System Can Do</h3>
-
-        ✔ AI Disease Prediction<br>
-        ✔ Patient Symptom Analysis<br>
-        ✔ Health Risk Timeline Prediction<br>
-        ✔ Explainable AI Medical Insights<br>
-        ✔ AI Medical Chat Assistant<br>
-        ✔ Doctor & Specialist Recommendation<br>
-        ✔ Early Disease Detection Support<br>
-        ✔ Preventive Healthcare Insights
-        </div>
-        """, unsafe_allow_html=True)
+    st.markdown("""
+<div class="feature-box">
+✔ AI Disease Prediction<br>
+✔ Patient Symptom Analysis<br>
+✔ Health Risk Timeline Prediction<br>
+✔ Explainable AI Medical Insights<br>
+✔ AI Medical Chat Assistant<br>
+✔ Doctor & Specialist Recommendation<br>
+✔ Early Disease Detection Support<br>
+✔ Preventive Healthcare Insights
+</div>
+""", unsafe_allow_html=True)
 
 # ---------------------------------------------------
 # AI DISEASE PREDICTION
