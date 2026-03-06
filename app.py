@@ -327,4 +327,3 @@ if st.session_state.page == "Doctor Recommendation":
             st.success(f"Recommended Specialist: {doc}")
             st.write(f"Patients with {disease} should consult a {doc}.")
 
-
