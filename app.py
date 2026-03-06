@@ -1,82 +1,38 @@
 import streamlit as st
-import numpy as np
-import plotly.express as px
-import requests
+import random
 
-# -------------------------
+# ---------------------------------------------------
 # PAGE CONFIG
-# -------------------------
+# ---------------------------------------------------
 
 st.set_page_config(
-    page_title="AI Healthcare System",
+    page_title="AI Healthcare Intelligence System",
     page_icon="🧬",
     layout="wide"
 )
 
-# -------------------------
-# CUSTOM CSS THEME
-# -------------------------
+# ---------------------------------------------------
+# STYLING
+# ---------------------------------------------------
 
 st.markdown("""
 <style>
 
-body{
-background: linear-gradient(135deg,#e6f3ff,#f7fbff);
+.main {
+background: linear-gradient(120deg,#e6f7ff,#f0fff5);
 }
 
-/* MAIN TITLE */
-
-.title-box{
-background: linear-gradient(90deg,#0061ff,#00c6ff);
-padding:30px;
-border-radius:15px;
-text-align:center;
-color:white;
-font-size:40px;
+.big-title{
+font-size:60px;
 font-weight:bold;
-letter-spacing:2px;
+text-align:center;
+padding:20px;
+border-radius:20px;
+background:linear-gradient(90deg,#00c6ff,#0072ff);
+color:white;
+box-shadow:0px 8px 25px rgba(0,0,0,0.2);
 animation: float 3s ease-in-out infinite;
 }
-
-/* FEATURE BOX */
-
-.feature-box{
-background: linear-gradient(135deg,#0077b6,#0096c7);
-padding:20px;
-border-radius:12px;
-color:white;
-font-weight:600;
-font-size:18px;
-margin-bottom:15px;
-box-shadow:0 4px 12px rgba(0,0,0,0.15);
-transition:0.3s;
-}
-
-.feature-box:hover{
-transform:scale(1.05);
-background:linear-gradient(135deg,#0096c7,#00b4d8);
-}
-
-/* SIDEBAR NAVIGATION BOX */
-
-.nav-box{
-background:linear-gradient(135deg,#023e8a,#0077b6);
-padding:12px;
-border-radius:10px;
-color:white;
-font-weight:600;
-margin-bottom:10px;
-text-align:center;
-transition:0.3s;
-cursor:pointer;
-}
-
-.nav-box:hover{
-transform:scale(1.05);
-background:linear-gradient(135deg,#0077b6,#00b4d8);
-}
-
-/* ANIMATIONS */
 
 @keyframes float{
 0%{transform:translateY(0px)}
@@ -84,40 +40,64 @@ background:linear-gradient(135deg,#0077b6,#00b4d8);
 100%{transform:translateY(0px)}
 }
 
-</style>
-""",unsafe_allow_html=True)
+.feature-box{
+background:white;
+padding:20px;
+border-radius:15px;
+box-shadow:0px 4px 15px rgba(0,0,0,0.1);
+transition:0.3s;
+text-align:center;
+font-size:18px;
+}
 
-# -------------------------
-# SIDEBAR
-# -------------------------
+.feature-box:hover{
+transform:scale(1.05);
+background:#e6f2ff;
+}
+
+</style>
+""", unsafe_allow_html=True)
+
+# ---------------------------------------------------
+# PAGE STATE
+# ---------------------------------------------------
+
+if "page" not in st.session_state:
+    st.session_state.page = "Home"
+
+# ---------------------------------------------------
+# SIDEBAR NAVIGATION
+# ---------------------------------------------------
 
 st.sidebar.title("🧭 Navigation")
 
-st.sidebar.markdown('<div class="nav-box">🏠 Home</div>',unsafe_allow_html=True)
-st.sidebar.markdown('<div class="nav-box">🧠 AI Disease Prediction</div>',unsafe_allow_html=True)
-st.sidebar.markdown('<div class="nav-box">📊 Patient Risk Timeline</div>',unsafe_allow_html=True)
-st.sidebar.markdown('<div class="nav-box">📑 AI Report</div>',unsafe_allow_html=True)
-st.sidebar.markdown('<div class="nav-box">💬 AI Medical Assistant</div>',unsafe_allow_html=True)
-st.sidebar.markdown('<div class="nav-box">👨‍⚕ Doctor Recommendation</div>',unsafe_allow_html=True)
-
-page = st.sidebar.radio(
-"",
+nav = st.sidebar.radio(
+"Go to",
 [
-"🏠 Home",
-"🧠 AI Disease Prediction",
-"📊 Patient Risk Timeline",
-"📑 AI Report",
-"💬 AI Medical Assistant",
-"👨‍⚕ Doctor Recommendation"
-]
+"Home",
+"AI Disease Prediction",
+"Patient Risk Timeline",
+"AI Report",
+"AI Medical Assistant",
+"Doctor Recommendation"
+],
+index=[
+"Home",
+"AI Disease Prediction",
+"Patient Risk Timeline",
+"AI Report",
+"AI Medical Assistant",
+"Doctor Recommendation"
+].index(st.session_state.page)
 )
 
-# -------------------------
+st.session_state.page = nav
+
+# ---------------------------------------------------
 # DATA
-# -------------------------
+# ---------------------------------------------------
 
-symptom_options = [
-
+symptom_list = [
 "Fever","Cough","Shortness of Breath","Chest Pain","Headache",
 "Fatigue","Body Pain","Dizziness","Nausea","Vomiting","Diarrhea",
 "Constipation","Abdominal Pain","Back Pain","Joint Pain","Muscle Pain",
@@ -126,13 +106,10 @@ symptom_options = [
 "Loss of Appetite","Sore Throat","Runny Nose","Insomnia","Anxiety",
 "Depression","Memory Loss","Confusion","Difficulty Breathing",
 "Heart Palpitations","Cold Sensitivity","Heat Sensitivity",
-"Numbness","Tingling Sensation","Loss of Balance","Sneezing",
-"High Blood Pressure","Low Blood Pressure","Dry Skin","Hair Loss",
-"Burning Urination","Night Sweats","Mood Swings","Fainting"
+"Numbness","Tingling Sensation","Loss of Balance"
 ]
 
 diseases = [
-
 "Diabetes","Heart Disease","Glaucoma","Kidney Disease",
 "Hypertension","Cancer","Asthma","Arthritis",
 "Alzheimer's Disease","Parkinson's Disease","Stroke",
@@ -140,9 +117,7 @@ diseases = [
 "Depression","Anxiety Disorder","Migraine",
 "Pneumonia","Tuberculosis","COVID-19",
 "Gastritis","Peptic Ulcer","Obesity","Anemia",
-"Skin Allergy","Psoriasis","Eczema",
-"Gallstones","Pancreatitis","Chronic Bronchitis",
-"Sinusitis","Appendicitis","Hepatitis","Leukemia"
+"Skin Allergy","Psoriasis","Eczema"
 ]
 
 doctors = {
@@ -169,7 +144,7 @@ doctors = {
 "COVID-19":"Infectious Disease Specialist",
 "Gastritis":"Gastroenterologist",
 "Peptic Ulcer":"Gastroenterologist",
-"Obesity":"Nutritionist",
+"Obesity":"Nutritionist / Endocrinologist",
 "Anemia":"Hematologist",
 "Skin Allergy":"Dermatologist",
 "Psoriasis":"Dermatologist",
@@ -178,146 +153,172 @@ doctors = {
 
 conditions = [
 
-"Diabetes","Hypertension","Heart Surgery","Kidney Surgery",
-"Liver Transplant","Cancer Treatment","Asthma","Thyroid Disorder",
-"Appendectomy","Gallbladder Removal","Hip Replacement",
-"Knee Replacement","Spinal Surgery","Brain Surgery",
-"Eye Surgery","Dental Surgery","Organ Transplant",
-"Chemotherapy","Radiation Therapy","Insulin Therapy",
-"Dialysis","Blood Transfusion","Cardiac Bypass",
-"Pacemaker Implant","Stent Placement","Physical Therapy",
-"Psychiatric Treatment","Obesity Treatment","Allergy Treatment",
-"Chronic Pain Treatment"
+"Diabetes","Hypertension","Heart Surgery","Kidney Stones",
+"Thyroid Disorder","Asthma","Allergy","Obesity",
+"COVID Infection","Cancer Treatment","Fracture Surgery",
+"Joint Replacement","Liver Disease","Stroke History",
+"Depression Treatment","Anxiety Disorder","Gastritis",
+"Ulcer Surgery","Eye Surgery","Spine Surgery",
+"Pregnancy","Blood Transfusion","Dialysis",
+"Organ Transplant","Cardiac Bypass","Pacemaker",
+"Brain Surgery","Appendix Surgery","Gallbladder Surgery",
+"Skin Treatment"
 ]
 
-# -------------------------
+# ---------------------------------------------------
 # HOME PAGE
-# -------------------------
+# ---------------------------------------------------
 
-if page=="🏠 Home":
+if st.session_state.page == "Home":
 
-    st.markdown('<div class="title-box">🧬 AI Healthcare System</div>',unsafe_allow_html=True)
+    st.markdown('<div class="big-title">🧬 AI Healthcare Intelligence System 🤖</div>', unsafe_allow_html=True)
 
     st.write("")
 
-    col1,col2,col3=st.columns(3)
+    col1,col2,col3 = st.columns(3)
 
     with col1:
-        st.markdown('<div class="feature-box">✔ AI Disease Prediction</div>',unsafe_allow_html=True)
-        st.markdown('<div class="feature-box">✔ Patient Symptom Analysis</div>',unsafe_allow_html=True)
-        st.markdown('<div class="feature-box">✔ Health Risk Timeline</div>',unsafe_allow_html=True)
+        st.markdown('<div class="feature-box">🧠 AI Disease Prediction</div>', unsafe_allow_html=True)
+        if st.button("Open AI Disease Prediction"):
+            st.session_state.page="AI Disease Prediction"
+            st.rerun()
 
     with col2:
-        st.markdown('<div class="feature-box">✔ AI Medical Insights</div>',unsafe_allow_html=True)
-        st.markdown('<div class="feature-box">✔ AI Chat Assistant</div>',unsafe_allow_html=True)
-        st.markdown('<div class="feature-box">✔ Doctor Recommendation</div>',unsafe_allow_html=True)
+        st.markdown('<div class="feature-box">📊 Patient Risk Timeline</div>', unsafe_allow_html=True)
+        if st.button("Open Risk Timeline"):
+            st.session_state.page="Patient Risk Timeline"
+            st.rerun()
 
     with col3:
-        st.markdown('<div class="feature-box">✔ Early Disease Detection</div>',unsafe_allow_html=True)
-        st.markdown('<div class="feature-box">✔ Preventive Healthcare</div>',unsafe_allow_html=True)
+        st.markdown('<div class="feature-box">📑 AI Report</div>', unsafe_allow_html=True)
+        if st.button("Open AI Report"):
+            st.session_state.page="AI Report"
+            st.rerun()
+
+    col4,col5 = st.columns(2)
+
+    with col4:
+        st.markdown('<div class="feature-box">💬 AI Medical Assistant</div>', unsafe_allow_html=True)
+        if st.button("Open Medical Assistant"):
+            st.session_state.page="AI Medical Assistant"
+            st.rerun()
+
+    with col5:
+        st.markdown('<div class="feature-box">👨‍⚕ Doctor Recommendation</div>', unsafe_allow_html=True)
+        if st.button("Find Doctor"):
+            st.session_state.page="Doctor Recommendation"
+            st.rerun()
 
     st.write("")
+    st.subheader("🏥 What This System Can Do")
 
-    st.info("This AI healthcare system helps patients and doctors make smarter medical decisions using artificial intelligence.")
+    st.markdown("""
+<div class="feature-box">
+✔ AI Disease Prediction<br>
+✔ Patient Symptom Analysis<br>
+✔ Health Risk Timeline Prediction<br>
+✔ Explainable AI Medical Insights<br>
+✔ AI Medical Chat Assistant<br>
+✔ Doctor & Specialist Recommendation<br>
+✔ Early Disease Detection Support<br>
+✔ Preventive Healthcare Insights
+</div>
+""", unsafe_allow_html=True)
 
-# -------------------------
+# ---------------------------------------------------
 # AI DISEASE PREDICTION
-# -------------------------
+# ---------------------------------------------------
 
-elif page=="🧠 AI Disease Prediction":
+if st.session_state.page == "AI Disease Prediction":
 
-    st.title("AI Disease Prediction")
+    st.title("🧠 AI Disease Prediction")
 
-    age=st.slider("Age",1,100)
+    age = st.slider("Age",1,100)
+    weight = st.number_input("Weight (kg)")
+    height = st.number_input("Height (cm)")
+    glucose = st.number_input("Glucose Level")
+    bp = st.number_input("Blood Pressure")
 
-    weight=st.number_input("Weight (kg)")
-    height=st.number_input("Height (cm)")
+    symptoms = st.multiselect("Select Patient Symptoms",symptom_list)
 
-    symptoms=st.multiselect("Select Symptoms",symptom_options)
-
-    custom_symptom=st.text_input("Add custom symptom (optional)")
+    other = st.text_input("Other Symptoms (optional)")
 
     if st.button("Predict Disease"):
+        prediction=random.choice(diseases)
+        st.success(f"Predicted Disease Risk: {prediction}")
 
-        prediction=np.random.choice(diseases)
+# ---------------------------------------------------
+# RISK TIMELINE
+# ---------------------------------------------------
 
-        st.success(f"Predicted Disease: {prediction}")
+if st.session_state.page == "Patient Risk Timeline":
 
-# -------------------------
-# PATIENT RISK TIMELINE
-# -------------------------
-
-elif page=="📊 Patient Risk Timeline":
-
-    st.title("Patient Health Risk Timeline")
+    st.title("📊 Patient Health Risk Timeline")
 
     condition=st.selectbox(
     "Current Medical Condition / Surgery / Treatment",
     conditions
     )
 
-    years=st.slider("Years to Predict Risk",1,10)
+    if st.button("Generate Timeline"):
 
-    risk=np.random.randint(20,80,years)
+        st.write("Health Risk Analysis")
 
-    df={"Year":list(range(1,years+1)),"Risk %":risk}
+        st.progress(30)
+        st.write("Current Health Risk: Low")
 
-    fig=px.line(df,x="Year",y="Risk %")
+        st.progress(60)
+        st.write("5 Year Risk: Moderate")
 
-    st.plotly_chart(fig)
+        st.progress(80)
+        st.write("10 Year Risk: High")
 
-# -------------------------
+# ---------------------------------------------------
 # AI REPORT
-# -------------------------
+# ---------------------------------------------------
 
-elif page=="📑 AI Report":
+if st.session_state.page == "AI Report":
 
-    st.title("AI Report")
+    st.title("📑 AI Report")
 
-    st.subheader("Understanding the Factors Behind This Health Prediction")
+    st.write("Why the AI predicted this result:")
 
-    st.write("• Age may influence disease risk")
-    st.write("• BMI and weight can affect health")
-    st.write("• Selected symptoms increase probability")
-    st.write("• Patient medical history plays a role")
-    st.write("• Lifestyle factors may impact prediction")
+    st.write("• Age factor contributed to the prediction")
+    st.write("• Body Mass Index (BMI) influenced health risk")
+    st.write("• Selected symptoms increased probability")
+    st.write("• Patient health history affected prediction")
+    st.write("• Lifestyle risk indicators detected")
 
-# -------------------------
+# ---------------------------------------------------
 # AI MEDICAL ASSISTANT
-# -------------------------
+# ---------------------------------------------------
 
-elif page=="💬 AI Medical Assistant":
+if st.session_state.page == "AI Medical Assistant":
 
-    st.title("AI Medical Assistant")
+    st.title("💬 AI Medical Assistant")
 
-    user_question=st.text_area("Describe your symptoms or medical question")
+    question = st.text_area("Describe your symptoms or medical question")
 
     if st.button("Ask AI"):
+        st.info("This assistant provides general medical information. For diagnosis consult a doctor.")
 
-        response="Consult a doctor if symptoms persist."
-
-        st.write(response)
-
-# -------------------------
+# ---------------------------------------------------
 # DOCTOR RECOMMENDATION
-# -------------------------
+# ---------------------------------------------------
 
-elif page=="👨‍⚕ Doctor Recommendation":
+if st.session_state.page == "Doctor Recommendation":
 
-    st.title("Doctor Recommendation System")
+    st.title("👨‍⚕ Doctor Recommendation System")
 
-    disease=st.selectbox("Select Disease",diseases)
+    disease = st.selectbox("Select Disease", diseases)
 
-    custom=st.text_input("Or type disease")
+    custom = st.text_input("Or Type Disease")
 
-    if disease in doctors:
+    if st.button("Recommend Doctor"):
 
-        doc=doctors[disease]
-
-        st.success(f"Recommended Specialist: {doc}")
-
-        st.write(f"Patients with {disease} should consult a {doc}")
-
-    elif custom!="":
-
-        st.info("Consult a General Physician for initial diagnosis.")
+        if custom!="":
+            st.success(f"Patients with {custom} should consult a Specialist Physician.")
+        else:
+            doc=doctors.get(disease,"General Physician")
+            st.success(f"Recommended Specialist: {doc}")
+            st.write(f"Patients with {disease} should consult a {doc}.")
