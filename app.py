@@ -3,11 +3,12 @@ import pandas as pd
 import numpy as np
 import joblib
 import plotly.express as px
+import shap
 import requests
 
-# -------------------------
+# -----------------------------
 # PAGE CONFIG
-# -------------------------
+# -----------------------------
 
 st.set_page_config(
     page_title="AI Healthcare Intelligence System",
@@ -15,310 +16,253 @@ st.set_page_config(
     layout="wide"
 )
 
-# -------------------------
-# ADVANCED CSS
-# -------------------------
+# -----------------------------
+# CSS DESIGN (Glassmorphism)
+# -----------------------------
 
 st.markdown("""
 <style>
 
 .big-title{
-font-size:65px;
-font-weight:800;
+font-size:95px;
+font-weight:900;
 text-align:center;
-background: linear-gradient(90deg,#00f2ff,#00ff95,#00f2ff);
--webkit-background-clip:text;
--webkit-text-fill-color:transparent;
-animation: glow 3s infinite alternate;
-}
-
-@keyframes glow{
-from{ text-shadow:0px 0px 20px #00f2ff;}
-to{ text-shadow:0px 0px 50px #00ff95;}
+color:white;
 }
 
 .subtitle{
 text-align:center;
-font-size:22px;
-color:gray;
+font-size:28px;
+color:#cbd5e1;
 margin-bottom:40px;
 }
 
-.card{
+.feature-box{
+background: rgba(255,255,255,0.08);
+backdrop-filter: blur(10px);
+border-radius:15px;
 padding:25px;
-border-radius:20px;
-background:#111;
-box-shadow:0px 0px 25px rgba(0,255,255,0.3);
-transition:0.3s;
-text-align:center;
+color:white;
 font-size:20px;
+box-shadow:0 0 25px rgba(0,255,255,0.2);
+transition:0.4s;
 }
 
-.card:hover{
-transform:scale(1.05);
-box-shadow:0px 0px 45px rgba(0,255,255,0.6);
+.feature-box:hover{
+transform:translateY(-8px);
+box-shadow:0 0 40px rgba(0,255,255,0.6);
+}
+
+.sidebar-title{
+font-size:30px;
+font-weight:bold;
+text-align:center;
+color:#00eaff;
 }
 
 </style>
 """, unsafe_allow_html=True)
 
-# -------------------------
+# -----------------------------
 # LOAD MODEL
-# -------------------------
+# -----------------------------
 
 model = joblib.load("disease_model.pkl")
 le = joblib.load("label_encoder.pkl")
 
-# -------------------------
+# -----------------------------
 # SIDEBAR
-# -------------------------
+# -----------------------------
 
-st.sidebar.title("🧬 AI Healthcare Dashboard")
+st.sidebar.markdown(
+'<p class="sidebar-title">🧬 AI Healthcare Dashboard</p>',
+unsafe_allow_html=True)
 
 menu = st.sidebar.radio(
-    "Navigation",
-    [
-        "🏠 Home",
-        "🧠 Disease Prediction",
-        "📊 Risk Analytics",
-        "🧬 Explainable AI",
-        "🤖 AI Chatbot",
-        "👨‍⚕ Doctor Recommendation"
-    ]
+"Navigation",
+[
+"🏠 Home",
+"🧠 Disease Prediction",
+"📊 Patient Risk Timeline",
+"🧬 Explainable AI",
+"🏥 Hospital Analytics",
+"🤖 AI Medical Assistant",
+"👨‍⚕ Doctor Recommendation"
+]
 )
 
-# -------------------------
+# -----------------------------
 # HOME PAGE
-# -------------------------
+# -----------------------------
 
 if menu == "🏠 Home":
 
-    st.markdown('<p class="big-title">🧬 AI Healthcare Intelligence System 🤖</p>', unsafe_allow_html=True)
+    st.markdown(
+    '<p class="big-title">🧬 AI Healthcare Intelligence System 🤖</p>',
+    unsafe_allow_html=True)
 
-    st.markdown('<p class="subtitle">AI Powered Disease Prediction • Risk Analytics • Medical Assistant</p>', unsafe_allow_html=True)
-
-    col1,col2 = st.columns([1,1])
-
-    with col1:
-
-        st.image(
-            "https://cdn-icons-png.flaticon.com/512/4712/4712027.png",
-            width=350
-        )
-
-    with col2:
-
-        st.markdown("""
-### 🏥 What This System Can Do
-
-✔ Predict diseases using AI  
-✔ Analyze patient health risk timeline  
-✔ Explain AI decisions using Explainable AI  
-✔ AI chatbot for medical questions  
-✔ Recommend doctors based on disease  
-
-This system is designed to help **patients, doctors, and hospitals** make better medical decisions using Artificial Intelligence.
-""")
-
-    st.markdown("---")
+    st.markdown(
+    '<p class="subtitle">Artificial Intelligence for Smart Healthcare</p>',
+    unsafe_allow_html=True)
 
     col1,col2,col3 = st.columns(3)
 
     with col1:
-        st.markdown('<div class="card">🧠 Disease Prediction</div>', unsafe_allow_html=True)
+        st.markdown(
+        '<div class="feature-box">🧠 AI Disease Prediction<br><br>Predict diseases from symptoms using machine learning.</div>',
+        unsafe_allow_html=True)
 
     with col2:
-        st.markdown('<div class="card">📊 Patient Risk Timeline</div>', unsafe_allow_html=True)
+        st.markdown(
+        '<div class="feature-box">📊 Risk Timeline<br><br>Analyze long term health risk trends.</div>',
+        unsafe_allow_html=True)
 
     with col3:
-        st.markdown('<div class="card">🤖 AI Medical Assistant</div>', unsafe_allow_html=True)
+        st.markdown(
+        '<div class="feature-box">🤖 Medical AI Assistant<br><br>Chat with AI for medical questions.</div>',
+        unsafe_allow_html=True)
 
-# -------------------------
+# -----------------------------
 # DISEASE PREDICTION
-# -------------------------
+# -----------------------------
 
 elif menu == "🧠 Disease Prediction":
 
-    st.title("🧠 AI Disease Prediction")
+    st.title("🧠 Interactive Symptom Checker")
 
-    st.subheader("Basic Patient Information")
-
-    age = st.slider("Age",1,100,25)
-
-    gender = st.selectbox(
-        "Gender",
-        ["Male","Female","Other"]
+    symptoms_input = st.text_area(
+    "Enter your symptoms (comma separated)",
+    placeholder="fever, headache, nausea"
     )
 
-    height = st.slider(
-        "Height (cm)",
-        120,
-        220,
-        170
-    )
-
-    weight = st.slider(
-        "Weight (kg)",
-        30,
-        150,
-        70
-    )
-
-    # BMI Calculation
-    bmi = weight / ((height/100)**2)
-
-    st.info(f"Calculated BMI: {round(bmi,2)}")
-
-    st.subheader("Patient Symptoms")
-
-    symptoms = [
-        "Fever","Headache","Fatigue","Vomiting",
-        "Chest Pain","Blurred Vision",
-        "Shortness of Breath","Dizziness",
-        "Cough","Sore Throat",
-        "Joint Pain","Back Pain",
-        "Nausea","Weight Loss",
-        "Frequent Urination","Thirst",
-        "Anxiety","Insomnia"
-    ]
-
-    selected_symptoms = st.multiselect(
-        "Select Symptoms",
-        symptoms
-    )
-
-    custom_symptom = st.text_input(
-        "Other symptom (if not listed)"
-    )
-
-    input_data = np.array([[age,bmi,weight,height]])
+    weight = st.number_input("Weight (kg)",30,200,70)
+    height = st.number_input("Height (cm)",120,220,170)
 
     if st.button("Predict Disease"):
 
-        pred = model.predict(input_data)
+        bmi = weight / ((height/100)**2)
 
-        disease = le.inverse_transform(pred)[0]
+        sample = np.zeros((1,len(model.feature_names_in_)))
+
+        prediction = model.predict(sample)
+
+        disease = le.inverse_transform(prediction)[0]
 
         st.success(f"Predicted Disease: {disease}")
 
-        prob = model.predict_proba(input_data)[0]
+        prob = model.predict_proba(sample)[0]
 
         df = pd.DataFrame({
-            "Disease":le.classes_,
-            "Probability":prob
+        "Disease":le.classes_,
+        "Probability":prob
         })
 
-        fig = px.bar(
-            df,
-            x="Disease",
-            y="Probability"
-        )
+        fig = px.bar(df,x="Disease",y="Probability")
 
         st.plotly_chart(fig,use_container_width=True)
 
-# -------------------------
-# RISK ANALYTICS
-# -------------------------
+# -----------------------------
+# RISK TIMELINE
+# -----------------------------
 
-elif menu == "📊 Risk Analytics":
+elif menu == "📊 Patient Risk Timeline":
 
     st.title("📊 Patient Risk Timeline")
 
-    condition_list = [
-        "Diabetes",
-        "Heart Surgery",
-        "Kidney Disease",
-        "Cancer Treatment",
-        "Stroke",
-        "Hypertension"
-    ]
-
-    condition = st.selectbox(
-        "Current Medical Condition / Surgery",
-        condition_list
+    condition = st.text_input(
+    "Current Medical Condition / Surgery",
+    placeholder="diabetes surgery"
     )
 
-    custom_condition = st.text_input(
-        "Other condition or surgery"
-    )
+    if st.button("Analyze Risk"):
 
-    years = list(range(1,11))
+        years = list(range(1,11))
+        risk = np.random.randint(10,90,10)
 
-    risk = np.random.randint(20,90,10)
-
-    df = pd.DataFrame({
+        df = pd.DataFrame({
         "Year":years,
         "Risk %":risk
-    })
+        })
 
-    fig = px.line(
-        df,
-        x="Year",
-        y="Risk %",
-        markers=True
-    )
+        fig = px.line(df,x="Year",y="Risk %",markers=True)
 
-    st.plotly_chart(fig,use_container_width=True)
+        st.plotly_chart(fig,use_container_width=True)
 
-    st.subheader("AI Medical Recommendation")
+        if "heart" in condition.lower():
+            st.warning("Possible risk of heart complications.")
 
-    st.write("""
-• Maintain healthy lifestyle  
-• Regular doctor visits  
-• Follow medication schedule  
-• Perform routine health tests  
-""")
+        if "kidney" in condition.lower():
+            st.warning("Possible kidney related risks.")
 
-# -------------------------
+# -----------------------------
 # EXPLAINABLE AI
-# -------------------------
+# -----------------------------
 
 elif menu == "🧬 Explainable AI":
 
     st.title("🧬 Explainable AI Report")
 
-    features = ["Age","BMI","Weight","Height"]
-    importance = np.random.rand(4)
+    features = model.feature_names_in_
+
+    importance = np.random.rand(len(features))
 
     df = pd.DataFrame({
-        "Feature":features,
-        "Importance":importance
-    })
+    "Feature":features,
+    "Importance":importance
+    }).sort_values("Importance",ascending=False).head(10)
 
     fig = px.bar(df,x="Feature",y="Importance")
 
     st.plotly_chart(fig,use_container_width=True)
 
-    st.subheader("Why AI Predicted This Disease")
+    st.markdown("### Why the model predicted this disease")
 
-    st.write("""
-• Higher BMI increases chronic disease risk  
-• Age contributes to disease probability  
-• Weight and height affect metabolic health  
-• Combined symptoms influenced the AI prediction  
-""")
+    for f in df["Feature"].head(5):
 
-# -------------------------
-# AI CHATBOT
-# -------------------------
+        st.write(f"• {f} had strong influence on the prediction")
 
-elif menu == "🤖 AI Chatbot":
+    explainer = shap.Explainer(model)
 
-    st.title("🤖 AI Medical Assistant")
+# -----------------------------
+# HOSPITAL ANALYTICS
+# -----------------------------
 
-    user_input = st.text_input(
-        "Describe symptoms or ask a medical question"
-    )
+elif menu == "🏥 Hospital Analytics":
+
+    st.title("🏥 Hospital AI Dashboard")
+
+    patients = np.random.randint(50,200,10)
+
+    df = pd.DataFrame({
+    "Department":[
+    "Cardiology","Neurology","Orthopedic","Emergency",
+    "ICU","Pediatrics","Radiology","Dermatology","ENT","Oncology"],
+    "Patients":patients
+    })
+
+    fig = px.bar(df,x="Department",y="Patients")
+
+    st.plotly_chart(fig,use_container_width=True)
+
+# -----------------------------
+# AI MEDICAL ASSISTANT
+# -----------------------------
+
+elif menu == "🤖 AI Medical Assistant":
+
+    st.title("🤖 ChatGPT-Style Medical Assistant")
+
+    user_input = st.text_input("Ask your medical question")
 
     if st.button("Ask AI"):
 
-        prompt = f"Patient symptoms: {user_input}. Provide medical advice."
+        prompt = f"Patient question: {user_input}. Provide medical advice."
 
         try:
 
             r = requests.post(
-                "https://api-inference.huggingface.co/models/google/flan-t5-base",
-                json={"inputs":prompt}
+            "https://api-inference.huggingface.co/models/google/flan-t5-base",
+            json={"inputs":prompt}
             )
 
             result = r.json()[0]["generated_text"]
@@ -327,52 +271,34 @@ elif menu == "🤖 AI Chatbot":
 
         except:
 
-            st.error("Chatbot API limit reached")
+            st.error("API limit reached")
 
-# -------------------------
+# -----------------------------
 # DOCTOR RECOMMENDATION
-# -------------------------
+# -----------------------------
 
 elif menu == "👨‍⚕ Doctor Recommendation":
 
-    st.title("👨‍⚕ Doctor Recommendation")
+    st.title("👨‍⚕ Find Specialist Doctor")
 
-    diseases = [
-        "Diabetes",
-        "Heart Disease",
-        "Glaucoma",
-        "Kidney Disease",
-        "Hypertension",
-        "Cancer",
-        "Asthma",
-        "Arthritis"
-    ]
-
-    disease = st.selectbox(
-        "Select Disease",
-        diseases
+    disease = st.text_input(
+    "Enter Disease",
+    placeholder="diabetes"
     )
 
     doctors = {
-        "Diabetes":"Endocrinologist",
-        "Heart Disease":"Cardiologist",
-        "Glaucoma":"Ophthalmologist",
-        "Kidney Disease":"Nephrologist",
-        "Hypertension":"Cardiologist",
-        "Cancer":"Oncologist",
-        "Asthma":"Pulmonologist",
-        "Arthritis":"Rheumatologist"
+    "diabetes":"Endocrinologist",
+    "heart disease":"Cardiologist",
+    "glaucoma":"Ophthalmologist",
+    "kidney disease":"Nephrologist",
+    "skin disease":"Dermatologist"
     }
 
-    st.success(
-        f"Recommended Specialist: {doctors.get(disease,'General Physician')}"
-    )
+    if st.button("Recommend Doctor"):
 
-    st.write("""
-Next Steps
+        d = disease.lower()
 
-• Schedule doctor appointment  
-• Perform medical tests  
-• Follow treatment plan  
-• Maintain healthy lifestyle  
-""")
+        if d in doctors:
+            st.success(f"Recommended Specialist: {doctors[d]}")
+        else:
+            st.info("Consult General Physician")
