@@ -24,38 +24,64 @@ body{
 background: linear-gradient(135deg,#e6f3ff,#f7fbff);
 }
 
+/* MAIN TITLE */
+
 .title-box{
-background: linear-gradient(90deg,#0077b6,#00b4d8);
-padding:25px;
-border-radius:12px;
+background: linear-gradient(90deg,#0061ff,#00c6ff);
+padding:30px;
+border-radius:15px;
 text-align:center;
 color:white;
-font-size:35px;
+font-size:40px;
 font-weight:bold;
-animation: fadeIn 2s;
+letter-spacing:2px;
+animation: float 3s ease-in-out infinite;
 }
 
+/* FEATURE BOX */
+
 .feature-box{
-background:white;
+background: linear-gradient(135deg,#0077b6,#0096c7);
 padding:20px;
 border-radius:12px;
-box-shadow:0 4px 10px rgba(0,0,0,0.1);
+color:white;
+font-weight:600;
+font-size:18px;
+margin-bottom:15px;
+box-shadow:0 4px 12px rgba(0,0,0,0.15);
 transition:0.3s;
 }
 
 .feature-box:hover{
 transform:scale(1.05);
-box-shadow:0 8px 20px rgba(0,0,0,0.2);
+background:linear-gradient(135deg,#0096c7,#00b4d8);
 }
 
-.sidebar .sidebar-content{
-background:linear-gradient(#023e8a,#0077b6);
+/* SIDEBAR NAVIGATION BOX */
+
+.nav-box{
+background:linear-gradient(135deg,#023e8a,#0077b6);
+padding:12px;
+border-radius:10px;
 color:white;
+font-weight:600;
+margin-bottom:10px;
+text-align:center;
+transition:0.3s;
+cursor:pointer;
 }
 
-@keyframes fadeIn{
-0%{opacity:0}
-100%{opacity:1}
+.nav-box:hover{
+transform:scale(1.05);
+background:linear-gradient(135deg,#0077b6,#00b4d8);
+}
+
+/* ANIMATIONS */
+
+@keyframes float{
+0%{transform:translateY(0px)}
+50%{transform:translateY(-6px)}
+100%{transform:translateY(0px)}
 }
 
 </style>
@@ -67,8 +93,15 @@ color:white;
 
 st.sidebar.title("🧭 Navigation")
 
+st.sidebar.markdown('<div class="nav-box">🏠 Home</div>',unsafe_allow_html=True)
+st.sidebar.markdown('<div class="nav-box">🧠 AI Disease Prediction</div>',unsafe_allow_html=True)
+st.sidebar.markdown('<div class="nav-box">📊 Patient Risk Timeline</div>',unsafe_allow_html=True)
+st.sidebar.markdown('<div class="nav-box">📑 AI Report</div>',unsafe_allow_html=True)
+st.sidebar.markdown('<div class="nav-box">💬 AI Medical Assistant</div>',unsafe_allow_html=True)
+st.sidebar.markdown('<div class="nav-box">👨‍⚕ Doctor Recommendation</div>',unsafe_allow_html=True)
+
 page = st.sidebar.radio(
-"Select Page",
+"",
 [
 "🏠 Home",
 "🧠 AI Disease Prediction",
@@ -241,7 +274,7 @@ elif page=="📑 AI Report":
 
     st.title("AI Report")
 
-    st.write("Why the AI predicted this result:")
+    st.subheader("Understanding the Factors Behind This Health Prediction")
 
     st.write("• Age may influence disease risk")
     st.write("• BMI and weight can affect health")
