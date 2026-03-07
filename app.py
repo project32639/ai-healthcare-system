@@ -27,7 +27,7 @@ margin-top:30px;
 }
 
 .card{
-background:#4863AO;
+background:#CEA2FD;
 padding:35px;
 border-radius:15px;
 text-align:center;
@@ -45,7 +45,7 @@ background:#a8b1e5;
 }
 
 .model-box{
-background:#728FCE;
+background:#D6B4FC;
 padding:30px;
 border-radius:15px;
 font-size:20px;
@@ -428,5 +428,6 @@ elif page=="👨‍⚕ Doctor Recommendation":
 
 </div>
 """,unsafe_allow_html=True)
+
 
 
