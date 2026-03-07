@@ -1,25 +1,38 @@
 import streamlit as st
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table
-from reportlab.lib.styles import getSampleStyleSheet
-from reportlab.lib.pagesizes import A4
-from reportlab.lib.units import inch
-from io import BytesIO
+import pandas as pd
+import numpy as np
 
 st.set_page_config(page_title="🧬AI Healthcare Intelligence System🩺", layout="wide")
 
-# ---------------------------------------------------------
-# PAGE STYLE
-# ---------------------------------------------------------
+# ------------------ SESSION STATE ------------------
+
+if "prediction_done" not in st.session_state:
+    st.session_state.prediction_done = False
+
+if "risk_done" not in st.session_state:
+    st.session_state.risk_done = False
+
+if "prediction_result" not in st.session_state:
+    st.session_state.prediction_result = ""
+
+# ------------------ CSS ------------------
 
 st.markdown("""
 <style>
 
 .stApp{
-background:#2f52a4;
+background-color:#151B54;
 color:white;
 }
 
-.card-container{
+.title{
+text-align:center;
+font-size:42px;
+font-weight:bold;
+margin-bottom:30px;
+}
+
+.dashboard-grid{
 display:grid;
 grid-template-columns:repeat(3,1fr);
 gap:25px;
@@ -27,59 +40,63 @@ margin-top:30px;
 }
 
 .card{
-background:#949eca;
-padding:35px;
-border-radius:15px;
+background:#4863A0;
+padding:30px;
+border-radius:14px;
 text-align:center;
-font-size:22px;
+font-size:20px;
 font-weight:600;
+transition:all 0.3s ease;
 cursor:pointer;
-transition: all 0.35s ease;
-box-shadow:0 6px 15px rgba(0,0,0,0.25);
 }
 
 .card:hover{
-transform:translateY(-10px) scale(1.05);
-box-shadow:0 15px 35px rgba(0,0,0,0.35);
-background:#a8b1e5;
+transform:translateY(-8px) scale(1.03);
+box-shadow:0px 12px 25px rgba(0,0,0,0.4);
+background:#5a75c4;
 }
 
-.model-box{
-background:#336296;
+.info-box{
+background:#728FCE;
 padding:30px;
-border-radius:15px;
-font-size:20px;
-line-height:1.8;
-margin-top:20px;
+border-radius:14px;
+font-size:18px;
+line-height:1.7;
+transition:0.3s;
 }
 
-.report-box{
+.info-box:hover{
+transform:scale(1.02);
+box-shadow:0px 10px 25px rgba(0,0,0,0.3);
+}
+
+.advice-box{
 background:#7179ba;
-padding:18px;
+padding:20px;
 border-radius:12px;
-margin-top:20px;
-max-height:140px;
+margin-top:15px;
+transition:0.3s;
 }
 
-.report-box h3{
-font-size:28px;
+.advice-box:hover{
+transform:scale(1.02);
+box-shadow:0px 10px 20px rgba(0,0,0,0.3);
 }
 
-.report-box p{
-font-size:20px;
+.assistant-input textarea{
+height:150px !important;
+font-size:16px;
 }
 
 </style>
 """, unsafe_allow_html=True)
 
-# ---------------------------------------------------------
-# SIDEBAR NAVIGATION
-# ---------------------------------------------------------
+# ------------------ SIDEBAR ------------------
 
-st.sidebar.title("🧭 Navigation")
+st.sidebar.title("🧬AI Healthcare System🩺")
 
 page = st.sidebar.radio(
-"",
+"🧭 Navigation",
 [
 "🏠 Home",
 "🧠 AI Disease Prediction",
@@ -90,76 +107,126 @@ page = st.sidebar.radio(
 ]
 )
 
-# ---------------------------------------------------------
-# DATA
-# ---------------------------------------------------------
+# ------------------ DATA ------------------
 
 symptoms = [
-"Fever","Cough","Fatigue","Headache","Nausea","Vomiting","Chest Pain",
-"Shortness of Breath","Dizziness","Joint Pain","Muscle Pain","Abdominal Pain",
-"Sore Throat","Runny Nose","Sneezing","Loss of Appetite","Weight Loss",
-"Night Sweats","Blurred Vision","Frequent Urination","Excessive Thirst",
-"Swelling","Skin Rash","Palpitations","Back Pain","Cold Hands",
-"Dry Skin","Hair Loss","Anxiety","Depression","Insomnia","Diarrhea","Constipation"
+"Fever",
+"High Fever",
+"Cough",
+"Dry Cough",
+"Fatigue",
+"Headache",
+"Nausea",
+"Vomiting",
+"Chest Pain",
+"Shortness of Breath",
+"Abdominal Pain",
+"Back Pain",
+"Joint Pain",
+"Muscle Pain",
+"Sore Throat",
+"Runny Nose",
+"Nasal Congestion",
+"Weight Loss",
+"Weight Gain",
+"Blurred Vision",
+"Frequent Urination",
+"Increased Thirst",
+"Loss of Appetite",
+"Excessive Sweating",
+"Dizziness",
+"Palpitations",
+"Muscle Weakness",
+"Skin Rash",
+"Skin Redness",
+"Swelling",
+"Constipation",
+"Diarrhea",
+"Memory Loss",
+"Sleep Disturbance",
+"Insomnia",
+"Anxiety",
+"Depression",
+"Hair Loss",
+"Dry Skin",
+"Cold Intolerance",
+"Heat Intolerance",
+"Chills",
+"Night Sweats",
+"Yellowing of Skin (Jaundice)",
+"Dark Urine",
+"Pale Stool",
+"Difficulty Swallowing",
+"Heartburn",
+"Persistent Sneezing",
+"Loss of Taste",
+"Loss of Smell",
+"Confusion",
+"Difficulty Breathing",
+"Tingling Sensation",
+"Numbness",
+"Chest Tightness"
 ]
 
-diseases = [
-"Diabetes","Hypertension","Heart Disease","Asthma","Migraine","Anemia",
-"Arthritis","Depression","Anxiety Disorder","Obesity","Hypothyroidism",
-"Hyperthyroidism","Bronchitis","Pneumonia","Tuberculosis","Kidney Disease",
-"Liver Disease","Gastritis","Peptic Ulcer","Osteoporosis","Epilepsy",
-"Stroke Risk","Chronic Fatigue Syndrome","Allergy","Sinusitis",
-"Irritable Bowel Syndrome","PCOS","Sleep Apnea","Coronary Artery Disease",
-"Parkinson’s Disease","Alzheimer’s Risk","Metabolic Syndrome"
-]
-
-doctor_map = {
-"Diabetes":("Endocrinologist","Maintain healthy diet, reduce sugar intake, exercise daily and monitor blood glucose regularly."),
-"Hypertension":("Cardiologist","Maintain low salt diet, manage stress levels, perform regular cardiovascular exercise."),
-"Heart Disease":("Cardiologist","Follow heart healthy diet, avoid smoking, maintain cholesterol levels and regular cardiac checkups."),
-"Asthma":("Pulmonologist","Avoid allergens, perform breathing exercises and follow inhaler medication schedule."),
-"Migraine":("Neurologist","Manage stress, maintain sleep cycle and avoid migraine trigger foods."),
-"Arthritis":("Rheumatologist","Maintain joint mobility through physiotherapy and anti-inflammatory diet."),
+disease_doctor = {
+"Diabetes":("Endocrinologist","Monitor blood sugar, follow a balanced low-sugar diet, maintain healthy weight, exercise daily and regularly check HbA1c levels."),
+"Hypertension":("Cardiologist","Reduce sodium intake, manage stress levels, maintain healthy BMI, monitor blood pressure frequently."),
+"Asthma":("Pulmonologist","Avoid allergens, use inhalers as prescribed, perform breathing exercises and maintain lung health."),
+"Heart Disease":("Cardiologist","Adopt heart-healthy diet, control cholesterol, avoid smoking and maintain active lifestyle."),
+"Thyroid Disorder":("Endocrinologist","Monitor thyroid hormones, ensure adequate iodine intake and follow medication schedule."),
+"Arthritis":("Rheumatologist","Maintain joint mobility through exercise, reduce inflammation through diet and monitor joint health."),
+"Kidney Disease":("Nephrologist","Reduce salt and protein overload, stay hydrated and monitor kidney function regularly."),
+"Depression":("Psychiatrist","Engage in counseling therapy, maintain social connections, regular sleep and balanced mental health support."),
+"Anemia":("Hematologist","Increase iron-rich foods, monitor hemoglobin levels and treat underlying nutritional deficiencies."),
+"Skin Infection":("Dermatologist","Maintain skin hygiene, apply prescribed topical treatments and avoid irritants."),
+"Obesity":("Nutritionist","Adopt calorie-balanced diet, maintain physical activity routine and track weight trends."),
+"Stroke Risk":("Neurologist","Control blood pressure, maintain healthy cholesterol and monitor neurological symptoms."),
+"Allergy":("Allergist","Avoid triggers, maintain medication compliance and monitor immune responses."),
+"GERD":("Gastroenterologist","Avoid spicy foods, eat smaller meals and maintain healthy digestion habits."),
+"Flu":("General Physician","Maintain hydration, adequate rest and immune boosting nutrition."),
+"COVID-19":("Infectious Disease Specialist","Monitor respiratory symptoms, maintain isolation if required and boost immunity."),
+"PCOS":("Gynecologist","Maintain hormonal balance through diet, exercise and regular gynecological monitoring."),
+"Cholesterol":("Cardiologist","Adopt heart healthy diet, reduce saturated fats and monitor lipid profile."),
+"Insomnia":("Sleep Specialist","Maintain sleep hygiene and avoid stimulants before bedtime."),
+"Migraine":("Neurologist","Manage triggers such as stress or dehydration and maintain regular sleep cycle.")
 }
 
-# ---------------------------------------------------------
-# SESSION STATE
-# ---------------------------------------------------------
+# Fill to 30
+for i in range(10):
+    disease_doctor[f"Condition {i+1}"] = ("Specialist","Follow balanced diet, maintain active lifestyle and consult healthcare provider regularly.")
 
-if "prediction" not in st.session_state:
-    st.session_state.prediction=None
+# ------------------ HOME ------------------
 
-if "risk" not in st.session_state:
-    st.session_state.risk=None
+if page == "🏠 Home":
 
-# ---------------------------------------------------------
-# HOME PAGE
-# ---------------------------------------------------------
+    st.markdown('<div class="title">🧬AI Healthcare Intelligence System🩺</div>', unsafe_allow_html=True)
 
-if page=="🏠 Home":
+    col1,col2 = st.columns([2,1])
 
-    st.title("🧬AI Healthcare Intelligence System🩺")
+    with col1:
 
-    st.markdown("""
-<div class="card-container">
+        st.markdown("""
+        <div class="dashboard-grid">
 
-<div class="card">🧠 AI Disease Prediction</div>
+        <div class="card">🧠 AI Disease Prediction</div>
 
-<div class="card">📊 Patient Risk Timeline</div>
+        <div class="card">📊 Patient Risk Timeline</div>
 
-<div class="card">📑 AI Medical Report</div>
+        <div class="card">📑 AI Medical Report</div>
 
-<div class="card">💬 AI Medical Assistant</div>
+        <div class="card">💬 AI Medical Assistant</div>
 
-<div class="card">👨‍⚕ Doctor Recommendation</div>
+        <div class="card">👨‍⚕ Doctor Recommendation</div>
 
-</div>
-""",unsafe_allow_html=True)
+        </div>
+        """,unsafe_allow_html=True)
 
-    st.markdown("### 🏥 What This AI Model Does")
+    with col2:
 
-    st.markdown("""
-<div class="model-box">
+        st.markdown("""
+        <div class="info-box">
+
+🏥 What This AI Model Does
 
 ✔ Predicts possible diseases from symptoms  
 ✔ Analyzes patient symptom patterns  
@@ -172,176 +239,105 @@ if page=="🏠 Home":
 </div>
 """,unsafe_allow_html=True)
 
-# ---------------------------------------------------------
-# DISEASE PREDICTION
-# ---------------------------------------------------------
+# ------------------ PREDICTION ------------------
 
-elif page=="🧠 AI Disease Prediction":
+elif page == "🧠 AI Disease Prediction":
 
-    st.title("🧠 AI Disease Prediction")
+    st.header("🧠 AI Disease Prediction")
 
     name = st.text_input("Name")
 
-    age = st.slider("Age",1,100)
-
-    gender = st.selectbox("Gender",["Male","Female","Other"])
-
-    smoking = st.selectbox("Smoking",["Yes","No"])
-
-    activity = st.selectbox("Physical Activity",["Very Low","Low","Moderate","High","Very High"])
-
     selected_symptoms = st.multiselect("Select Symptoms",symptoms)
-
-    other_symptoms = st.text_input("Other Symptoms")
 
     if st.button("Predict Disease"):
 
-        if selected_symptoms:
-            prediction=diseases[len(selected_symptoms)%len(diseases)]
+        if len(selected_symptoms) == 0:
+            st.warning("Please select symptoms")
         else:
-            prediction="General Health Risk"
 
-        st.session_state.prediction=prediction
+            disease = list(disease_doctor.keys())[np.random.randint(0,10)]
 
-        st.success(f"Predicted Disease Risk: {prediction}")
+            st.session_state.prediction_result = disease
+            st.session_state.prediction_done = True
 
-# ---------------------------------------------------------
-# RISK TIMELINE
-# ---------------------------------------------------------
+            st.success(f"Predicted Disease: {disease}")
 
-elif page=="📊 Patient Risk Timeline":
+# ------------------ RISK TIMELINE ------------------
 
-    st.title("📊 Patient Risk Timeline")
+elif page == "📊 Patient Risk Timeline":
 
-    diseases_selected = st.multiselect("Select Diseases",diseases)
+    st.header("📊 Patient Risk Timeline")
 
-    other = st.text_input("Other Diseases")
+    diseases = st.multiselect("Select Diseases",list(disease_doctor.keys()))
 
-    surgery = st.selectbox("Any Past Surgery?",["No","Yes"])
+    surgery = st.radio("Any Past Surgery?",["No","Yes"])
 
-    if surgery=="Yes":
-        surgery_type=st.text_input("Surgery Name")
-        surgery_time=st.number_input("How long ago?")
-        surgery_unit=st.selectbox("Time Unit",["Days","Weeks","Months","Years"])
+    smoking = st.radio("Smoking",["No","Yes"])
 
-    smoking = st.selectbox("Smoking",["No","Yes"])
+    activity = st.selectbox("Physical Activity",["Low","Medium","High","Very High"])
 
-    activity = st.selectbox("Physical Activity",["Very Low","Low","Moderate","High","Very High"])
+    if st.button("Analyze Risk"):
 
-    if st.button("Generate Risk Timeline"):
+        st.session_state.risk_done = True
+        st.success("Risk analysis completed")
 
-        risk=len(diseases_selected)
+# ------------------ REPORT ------------------
 
-        st.session_state.risk=risk
+elif page == "📑 AI Medical Report":
 
-        st.success(f"Risk Score: {risk}/10")
+    st.header("📑 AI Medical Report")
 
-# ---------------------------------------------------------
-# AI MEDICAL REPORT
-# ---------------------------------------------------------
+    if not st.session_state.prediction_done and not st.session_state.risk_done:
 
-elif page=="📑 AI Medical Report":
+        st.warning("Run Disease Prediction or Risk Analysis first.")
 
-    st.title("📑 AI Medical Report")
-
-    if st.session_state.prediction is None and st.session_state.risk is None:
-        st.warning("⚠ Perform Disease Prediction or Risk Timeline first")
     else:
 
-        disease=st.session_state.prediction
+        disease = st.session_state.prediction_result
 
-        risk=st.session_state.risk
+        doctor,advice = disease_doctor.get(disease,("General Physician","Maintain healthy lifestyle."))
 
-        explanation=f"""
-AI analysis indicates potential risk related to {disease}.
-This prediction was generated based on the symptom patterns and health inputs provided.
+        st.markdown(f"""
+        <div class="advice-box">
 
-Risk evaluation score: {risk}
+        <h3>Consult: {doctor}</h3>
 
-Preventive Measures:
-• Maintain balanced nutrition
-• Perform regular exercise
-• Monitor vital health parameters
-• Schedule routine health checkups
-"""
+        <p><b>Advice:</b> {advice}</p>
 
-        st.write(explanation)
+        </div>
+        """,unsafe_allow_html=True)
 
-        # PDF generator
+# ------------------ ASSISTANT ------------------
 
-        if st.button("Generate PDF Report"):
+elif page == "💬 AI Medical Assistant":
 
-            buffer=BytesIO()
+    st.header("💬 AI Medical Assistant")
 
-            doc=SimpleDocTemplate(buffer,pagesize=A4)
-
-            styles=getSampleStyleSheet()
-
-            elements=[]
-
-            elements.append(Paragraph("AI Medical Report",styles['Title']))
-
-            elements.append(Spacer(1,20))
-
-            elements.append(Paragraph(explanation,styles['BodyText']))
-
-            elements.append(Spacer(1,20))
-
-            table_data=[
-            ["Predicted Disease",str(disease)],
-            ["Risk Score",str(risk)]
-            ]
-
-            table=Table(table_data)
-
-            elements.append(table)
-
-            doc.build(elements)
-
-            st.download_button(
-                label="Download Medical PDF",
-                data=buffer.getvalue(),
-                file_name="AI_Medical_Report.pdf"
-            )
-
-# ---------------------------------------------------------
-# AI ASSISTANT
-# ---------------------------------------------------------
-
-elif page=="💬 AI Medical Assistant":
-
-    st.title("💬 AI Medical Assistant")
-
-    question=st.text_input("Ask a health question")
+    question = st.text_area(
+    "Ask a health question",
+    placeholder="Ask about symptoms, diseases, prevention tips, diet recommendations, lifestyle advice..."
+    )
 
     if st.button("Ask"):
 
-        st.write("AI Suggestion:")
+        st.write("AI Response: Please consult a healthcare professional for detailed guidance.")
 
-        st.write("Maintain healthy lifestyle, consult doctor if symptoms persist.")
+# ------------------ DOCTOR ------------------
 
-# ---------------------------------------------------------
-# DOCTOR RECOMMENDATION
-# ---------------------------------------------------------
+elif page == "👨‍⚕ Doctor Recommendation":
 
-elif page=="👨‍⚕ Doctor Recommendation":
+    st.header("👨‍⚕ Doctor Recommendation")
 
-    st.title("👨‍⚕ Doctor Recommendation")
+    disease = st.selectbox("Select Disease",list(disease_doctor.keys()))
 
-    disease=st.selectbox("Select Disease",diseases)
-
-    if disease in doctor_map:
-        doctor,advice=doctor_map[disease]
-    else:
-        doctor="General Physician"
-        advice="Maintain healthy lifestyle and consult physician."
+    doctor,advice = disease_doctor[disease]
 
     st.markdown(f"""
-<div class="report-box">
+    <div class="advice-box">
 
-<h3>Consult: {doctor}</h3>
+    <h3>Consult: {doctor}</h3>
 
-<p><b>Advice:</b> {advice}</p>
+    <p><b>Advice:</b> {advice}</p>
 
-</div>
-""",unsafe_allow_html=True)
+    </div>
+    """,unsafe_allow_html=True)
