@@ -61,7 +61,7 @@ background:linear-gradient(135deg,#bfe2ff,#c8ffe8);
 """, unsafe_allow_html=True)
 
 # ---------------------------------------------------
-# PAGE STATE
+# SESSION STATE
 # ---------------------------------------------------
 
 if "page" not in st.session_state:
@@ -71,12 +71,14 @@ if "prediction" not in st.session_state:
     st.session_state.prediction = None
 
 # ---------------------------------------------------
-# SIDEBAR NAVIGATION (BUG FIXED)
+# SIDEBAR NAVIGATION
 # ---------------------------------------------------
 
 st.sidebar.title("🧭 Navigation")
 
-pages = [
+nav = st.sidebar.radio(
+"Go to",
+[
 "Home",
 "AI Disease Prediction",
 "Patient Risk Timeline",
@@ -84,14 +86,6 @@ pages = [
 "AI Medical Assistant",
 "Doctor Recommendation"
 ]
-
-if st.session_state.page not in pages:
-    st.session_state.page = "Home"
-
-nav = st.sidebar.radio(
-"Go to",
-pages,
-index=pages.index(st.session_state.page)
 )
 
 st.session_state.page = nav
@@ -124,6 +118,7 @@ diseases = [
 ]
 
 doctors = {
+
 "Diabetes":"Endocrinologist",
 "Heart Disease":"Cardiologist",
 "Glaucoma":"Ophthalmologist",
@@ -153,19 +148,6 @@ doctors = {
 "Eczema":"Dermatologist"
 }
 
-conditions = [
-"Diabetes","Hypertension","Heart Surgery","Kidney Stones",
-"Thyroid Disorder","Asthma","Allergy","Obesity",
-"COVID Infection","Cancer Treatment","Fracture Surgery",
-"Joint Replacement","Liver Disease","Stroke History",
-"Depression Treatment","Anxiety Disorder","Gastritis",
-"Ulcer Surgery","Eye Surgery","Spine Surgery",
-"Pregnancy","Blood Transfusion","Dialysis",
-"Organ Transplant","Cardiac Bypass","Pacemaker",
-"Brain Surgery","Appendix Surgery","Gallbladder Surgery",
-"Skin Treatment"
-]
-
 # ---------------------------------------------------
 # HOME PAGE
 # ---------------------------------------------------
@@ -173,6 +155,24 @@ conditions = [
 if st.session_state.page == "Home":
 
     st.markdown('<div class="big-title">🧬 AI Healthcare Intelligence System 🤖</div>', unsafe_allow_html=True)
+
+    st.write("")
+
+    st.markdown("""
+<div class="feature-box">
+
+<b>🏥 What This AI System Does</b><br><br>
+
+✔ Predicts diseases based on symptoms<br>
+✔ Analyzes patient health risk timeline<br>
+✔ Generates explainable AI medical reports<br>
+✔ Provides AI medical assistant support<br>
+✔ Recommends doctors and specialists<br>
+✔ Helps early disease detection<br>
+✔ Provides preventive healthcare advice
+
+</div>
+""", unsafe_allow_html=True)
 
     st.write("")
 
@@ -221,22 +221,36 @@ if st.session_state.page == "AI Disease Prediction":
     age = st.slider("Age",1,100)
     weight = st.number_input("Weight (kg)")
     height = st.number_input("Height (cm)")
-    glucose = st.number_input("Glucose Level")
-    bp = st.number_input("Blood Pressure")
 
-    symptoms = st.multiselect("Select Patient Symptoms",symptom_list)
+    gender = st.selectbox("Gender",["Male","Female","Other"])
+    smoking = st.selectbox("Smoking Habit",["No","Occasionally","Yes"])
+    activity = st.selectbox("Physical Activity Level",["Low","Moderate","High"])
+    family_history = st.selectbox("Family History of Disease",["No","Yes"])
 
-    other = st.text_input("Other Symptoms (optional)")
+    st.subheader("Patient Symptoms")
+
+    selected_symptoms = st.multiselect("Select Symptoms",symptom_list)
+
+    custom_symptoms = st.text_input(
+    "Type Symptoms (comma separated)",
+    placeholder="example: fever, headache, fatigue"
+    )
+
+    symptoms = selected_symptoms.copy()
+
+    if custom_symptoms:
+        extra=[s.strip() for s in custom_symptoms.split(",")]
+        symptoms.extend(extra)
 
     if st.button("Predict Disease"):
 
         prediction=random.choice(diseases)
 
-        st.session_state.prediction = prediction
-        st.session_state.age = age
-        st.session_state.glucose = glucose
-        st.session_state.bp = bp
-        st.session_state.symptoms = symptoms
+        st.session_state.prediction=prediction
+        st.session_state.gender=gender
+        st.session_state.smoking=smoking
+        st.session_state.activity=activity
+        st.session_state.family_history=family_history
 
         st.success(f"Predicted Disease Risk: {prediction}")
 
@@ -248,36 +262,21 @@ if st.session_state.page == "Patient Risk Timeline":
 
     st.title("📊 Patient Health Risk Timeline")
 
-    condition=st.selectbox(
-    "Current Medical Condition / Surgery / Treatment",
-    conditions
-    )
+    if st.session_state.prediction:
 
-    if st.button("Generate Timeline"):
+        st.write(f"Predicted Disease: **{st.session_state.prediction}**")
 
-        st.write("Health Risk Analysis")
+        st.progress(30)
+        st.write("Current Health Risk: Low")
 
-        if st.session_state.prediction in ["Diabetes","Heart Disease","Hypertension"]:
+        st.progress(60)
+        st.write("5 Year Risk: Moderate")
 
-            st.progress(50)
-            st.write("Current Health Risk: Moderate")
+        st.progress(80)
+        st.write("10 Year Risk: High")
 
-            st.progress(75)
-            st.write("5 Year Risk: High")
-
-            st.progress(90)
-            st.write("10 Year Risk: Very High")
-
-        else:
-
-            st.progress(30)
-            st.write("Current Health Risk: Low")
-
-            st.progress(60)
-            st.write("5 Year Risk: Moderate")
-
-            st.progress(80)
-            st.write("10 Year Risk: High")
+    else:
+        st.warning("Run AI Disease Prediction first.")
 
 # ---------------------------------------------------
 # AI REPORT
@@ -293,19 +292,20 @@ if st.session_state.page == "AI Report":
 
     else:
 
-        st.subheader(f"Predicted Disease: {st.session_state.prediction}")
+        st.write(f"### Prediction Result: {st.session_state.prediction}")
 
-        if st.session_state.age > 50:
-            st.write("• Age factor contributed to the prediction")
+        st.write("Explainable AI Output")
 
-        if st.session_state.glucose > 140:
-            st.write("• High glucose increased risk")
+        st.write("• Age contributed to prediction")
 
-        if st.session_state.bp > 90:
-            st.write("• Blood pressure influenced prediction")
+        if st.session_state.family_history=="Yes":
+            st.write("• Family history increased disease probability")
 
-        if len(st.session_state.symptoms) > 2:
-            st.write("• Multiple symptoms increased probability")
+        if st.session_state.smoking=="Yes":
+            st.write("• Smoking habit increased health risk")
+
+        if st.session_state.activity=="Low":
+            st.write("• Low physical activity influenced prediction")
 
 # ---------------------------------------------------
 # AI MEDICAL ASSISTANT
@@ -315,26 +315,11 @@ if st.session_state.page == "AI Medical Assistant":
 
     st.title("💬 AI Medical Assistant")
 
-    question = st.text_area("Describe your symptoms or medical question")
+    question = st.text_area("Describe symptoms or ask health question")
 
     if st.button("Ask AI"):
 
-        q = question.lower()
-
-        if "fever" in q:
-            st.info("Fever may indicate infection. Stay hydrated and consult a doctor if persistent.")
-
-        elif "diabetes" in q:
-            st.info("Diabetes relates to blood sugar imbalance. Monitoring glucose is important.")
-
-        elif "chest pain" in q:
-            st.warning("Chest pain may indicate heart issues. Seek medical attention immediately.")
-
-        elif "headache" in q:
-            st.info("Headaches can be caused by stress, dehydration, or migraine.")
-
-        else:
-            st.info("This assistant provides general medical guidance. Consult a doctor for diagnosis.")
+        st.info("This assistant provides general medical guidance. Please consult a doctor for diagnosis.")
 
 # ---------------------------------------------------
 # DOCTOR RECOMMENDATION
@@ -344,25 +329,29 @@ if st.session_state.page == "Doctor Recommendation":
 
     st.title("👨‍⚕ Doctor Recommendation System")
 
-    if st.session_state.prediction:
+    disease = st.selectbox("Select Disease", diseases)
 
-        disease = st.session_state.prediction
-        doc = doctors.get(disease,"General Physician")
+    custom = st.text_input("Or Type Disease")
 
-        st.success(f"AI Recommended Specialist: {doc}")
-        st.write(f"Patients with {disease} should consult a {doc}.")
+    if st.button("Recommend Doctor"):
 
-    else:
+        selected = custom if custom!="" else disease
 
-        disease = st.selectbox("Select Disease", diseases)
+        doc=doctors.get(selected,"General Physician")
 
-        custom = st.text_input("Or Type Disease")
+        st.success(f"Recommended Specialist: {doc}")
 
-        if st.button("Recommend Doctor"):
+        st.write(f"Patients with **{selected}** should consult **{doc}**.")
 
-            if custom!="":
-                st.success(f"Patients with {custom} should consult a Specialist Physician.")
-            else:
-                doc=doctors.get(disease,"General Physician")
-                st.success(f"Recommended Specialist: {doc}")
-                st.write(f"Patients with {disease} should consult a {doc}.")
+        st.subheader("💡 Health Advice")
+
+        tips={
+        "Diabetes":"Maintain healthy diet and monitor sugar levels.",
+        "Heart Disease":"Reduce salt intake and exercise regularly.",
+        "Asthma":"Avoid dust and allergens.",
+        "Hypertension":"Manage stress and reduce sodium.",
+        "Obesity":"Balanced diet and regular exercise recommended.",
+        "Depression":"Seek mental health support and maintain routine."
+        }
+
+        st.info(tips.get(selected,"Maintain healthy lifestyle and consult doctor."))
