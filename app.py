@@ -1,5 +1,4 @@
 import streamlit as st
-import random
 import matplotlib.pyplot as plt
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet
@@ -7,9 +6,9 @@ import tempfile
 
 st.set_page_config(page_title="AI Healthcare Intelligence System", layout="wide")
 
-# --------------------------
+# --------------------------------------------------
 # UI STYLE
-# --------------------------
+# --------------------------------------------------
 
 st.markdown("""
 <style>
@@ -23,53 +22,41 @@ color:white;
 text-align:center;
 font-size:48px;
 font-weight:bold;
-margin-bottom:10px;
+margin-bottom:20px;
 }
-
-.subtitle{
-text-align:center;
-font-size:20px;
-margin-bottom:30px;
-}
-
-/* MODEL INFO BOX */
 
 .info-box{
 background:#336296;
 padding:30px;
 border-radius:15px;
-box-shadow:0 6px 20px rgba(0,0,0,0.4);
+margin-bottom:40px;
 transition:0.3s;
-font-size:18px;
 }
 
 .info-box:hover{
 transform:scale(1.02);
 }
 
-/* FEATURE BOXES */
-
-.feature-box{
-background:#2093c3;
-padding:25px;
+.feature-card{
+background:#949eca;
+padding:30px;
 border-radius:15px;
 text-align:center;
-font-size:18px;
-font-weight:600;
+font-size:20px;
+font-weight:bold;
+margin:15px;
 transition:0.3s;
 }
 
-.feature-box:hover{
+.feature-card:hover{
 transform:scale(1.05);
 }
-
-/* DOCTOR CARD */
 
 .doctor-card{
 background:#7179ba;
 padding:25px;
 border-radius:15px;
-font-size:18px;
+margin-top:20px;
 transition:0.3s;
 }
 
@@ -80,42 +67,54 @@ transform:scale(1.05);
 </style>
 """, unsafe_allow_html=True)
 
-# --------------------------
+# --------------------------------------------------
 # DISEASE DATABASE
-# --------------------------
+# --------------------------------------------------
 
 DISEASE_DATABASE={
-"Diabetes":("Endocrinologist","Monitor blood glucose levels regularly, follow a balanced low-sugar diet, exercise consistently, maintain a healthy weight, and attend regular medical check-ups."),
-"Hypertension":("Cardiologist","Reduce sodium intake, manage stress, exercise frequently, maintain proper sleep patterns and monitor blood pressure regularly."),
-"Heart Disease":("Cardiologist","Adopt a heart-healthy diet rich in fruits and vegetables, reduce saturated fats, avoid smoking, and perform cardiovascular exercise."),
-"Asthma":("Pulmonologist","Avoid allergens and air pollutants, carry inhalers when necessary, maintain proper breathing exercises."),
-"Stroke":("Neurologist","Control blood pressure, cholesterol levels and maintain active lifestyle."),
-"Arthritis":("Rheumatologist","Maintain joint mobility through light exercise and anti-inflammatory diet."),
-"Depression":("Psychiatrist","Practice mental wellness routines including therapy, meditation, and proper sleep."),
-"Anxiety Disorder":("Psychiatrist","Use mindfulness practices, counseling, and stress management techniques."),
-"Kidney Disease":("Nephrologist","Stay hydrated, limit sodium intake, and monitor kidney function regularly."),
-"Obesity":("Nutritionist","Maintain calorie-controlled diet and engage in daily physical activity."),
-"Thyroid Disorder":("Endocrinologist","Monitor thyroid hormone levels and follow prescribed medication."),
-"Anemia":("Hematologist","Increase iron intake through diet and supplements if recommended."),
+"Diabetes":{
+"doctor":"Endocrinologist",
+"symptoms":["Frequent Urination","Blurred Vision","Fatigue","Weight Loss"],
+"advice":"Maintain healthy diet, reduce sugar intake, exercise daily and monitor blood glucose regularly."
+},
+"Hypertension":{
+"doctor":"Cardiologist",
+"symptoms":["Headache","Chest Pain","Dizziness"],
+"advice":"Reduce salt intake, maintain healthy weight and monitor blood pressure frequently."
+},
+"Asthma":{
+"doctor":"Pulmonologist",
+"symptoms":["Shortness of Breath","Chest Pain","Cough"],
+"advice":"Avoid allergens, carry inhaler and maintain respiratory exercises."
+},
+"Anemia":{
+"doctor":"Hematologist",
+"symptoms":["Fatigue","Dizziness","Shortness of Breath"],
+"advice":"Increase iron intake and consume iron rich foods."
+},
+"Arthritis":{
+"doctor":"Rheumatologist",
+"symptoms":["Joint Pain","Swelling","Muscle Pain"],
+"advice":"Perform gentle joint exercises and maintain anti-inflammatory diet."
+}
 }
 
-# --------------------------
+# --------------------------------------------------
 # SYMPTOMS
-# --------------------------
+# --------------------------------------------------
 
 SYMPTOMS=[
 "Fever","Cough","Fatigue","Headache","Chest Pain","Shortness of Breath",
 "Nausea","Vomiting","Dizziness","Joint Pain","Muscle Pain",
-"Weight Loss","Weight Gain","Frequent Urination","Blurred Vision",
-"Skin Rash","Itching","Abdominal Pain","Constipation","Diarrhea",
-"Loss of Appetite","Insomnia","Depression","Anxiety","Memory Loss",
-"Confusion","Swelling","Back Pain","Neck Pain","Sore Throat",
-"Runny Nose","Sweating","Palpitations","Hair Loss"
+"Weight Loss","Frequent Urination","Blurred Vision","Swelling",
+"Skin Rash","Abdominal Pain","Constipation","Diarrhea",
+"Loss of Appetite","Insomnia","Back Pain","Neck Pain",
+"Sore Throat","Runny Nose","Sweating","Palpitations"
 ]
 
-# --------------------------
-# SIDEBAR NAVIGATION
-# --------------------------
+# --------------------------------------------------
+# SIDEBAR
+# --------------------------------------------------
 
 page=st.sidebar.radio(
 "Navigation",
@@ -129,13 +128,13 @@ page=st.sidebar.radio(
 ]
 )
 
-# --------------------------
+# --------------------------------------------------
 # HOME
-# --------------------------
+# --------------------------------------------------
 
 if page=="🏠 Home":
 
-    st.markdown('<div class="title">🧬 AI Healthcare Intelligence System</div>',unsafe_allow_html=True)
+    st.markdown('<div class="title">AI Healthcare Intelligence System</div>',unsafe_allow_html=True)
 
     st.markdown("""
 <div class="info-box">
@@ -153,34 +152,32 @@ if page=="🏠 Home":
 </div>
 """,unsafe_allow_html=True)
 
-    st.write("")
-
     col1,col2,col3=st.columns(3)
 
     with col1:
-        st.markdown('<div class="feature-box">🧠 AI Disease Prediction</div>',unsafe_allow_html=True)
+        st.markdown('<div class="feature-card">🧠 AI Disease Prediction</div>',unsafe_allow_html=True)
 
     with col2:
-        st.markdown('<div class="feature-box">📊 Patient Risk Timeline</div>',unsafe_allow_html=True)
+        st.markdown('<div class="feature-card">📊 Patient Risk Timeline</div>',unsafe_allow_html=True)
 
     with col3:
-        st.markdown('<div class="feature-box">📑 AI Medical Report</div>',unsafe_allow_html=True)
+        st.markdown('<div class="feature-card">📑 AI Medical Report</div>',unsafe_allow_html=True)
 
     col4,col5=st.columns(2)
 
     with col4:
-        st.markdown('<div class="feature-box">💬 AI Medical Assistant</div>',unsafe_allow_html=True)
+        st.markdown('<div class="feature-card">💬 AI Medical Assistant</div>',unsafe_allow_html=True)
 
     with col5:
-        st.markdown('<div class="feature-box">👨‍⚕ Doctor Recommendation</div>',unsafe_allow_html=True)
+        st.markdown('<div class="feature-card">👨‍⚕ Doctor Recommendation</div>',unsafe_allow_html=True)
 
-# --------------------------
+# --------------------------------------------------
 # DISEASE PREDICTION
-# --------------------------
+# --------------------------------------------------
 
 elif page=="🧠 AI Disease Prediction":
 
-    st.title("🧠 AI Disease Prediction")
+    st.title("AI Disease Prediction")
 
     name=st.text_input("Name")
 
@@ -203,51 +200,52 @@ elif page=="🧠 AI Disease Prediction":
 
     symptoms=st.multiselect("Select Symptoms",SYMPTOMS)
 
-    custom=st.text_input("Other Symptoms (comma separated)")
-
     if st.button("Predict Disease"):
 
-        predicted=random.sample(list(DISEASE_DATABASE.keys()),3)
+        scores={}
+
+        for disease,data in DISEASE_DATABASE.items():
+
+            match=len(set(symptoms) & set(data["symptoms"]))
+
+            scores[disease]=match
+
+        predicted=sorted(scores,key=scores.get,reverse=True)[:3]
 
         st.session_state.predicted=predicted
+        st.session_state.symptoms=symptoms
 
-        probs=[random.randint(50,95) for _ in predicted]
+        for d in predicted:
 
-        fig=plt.figure()
-        plt.bar(predicted,probs)
-        plt.title("Disease Probability %")
-        st.pyplot(fig)
+            data=DISEASE_DATABASE[d]
 
-        for d,p in zip(predicted,probs):
+            st.success(d)
 
-            doc,adv=DISEASE_DATABASE[d]
+            st.write("Doctor:",data["doctor"])
 
-            st.success(f"{d} ({p}%)")
-            st.write("Doctor:",doc)
-            st.write("Advice:",adv)
+            st.write("Advice:",data["advice"])
 
-# --------------------------
+# --------------------------------------------------
 # RISK TIMELINE
-# --------------------------
+# --------------------------------------------------
 
 elif page=="📊 Patient Risk Timeline":
 
-    st.title("📊 Patient Risk Timeline")
+    st.title("Patient Risk Timeline")
 
     diseases=st.multiselect("Select Diseases",list(DISEASE_DATABASE.keys()))
 
-    custom=st.text_input("Add Other Diseases (comma separated)")
+    custom=st.text_input("Add Other Diseases")
 
     surgery=st.selectbox("Any Past Surgery?",["No","Yes"])
 
     if surgery=="Yes":
 
-        surgery_type=st.text_input("Surgery Name")
+        surgery_name=st.text_input("Surgery Name")
 
-        duration=st.number_input("Recovery Duration",1)
+        duration=st.number_input("Duration",1)
 
-        duration_type=st.selectbox("Duration Unit",
-        ["Days","Weeks","Months","Years"])
+        unit=st.selectbox("Unit",["Days","Weeks","Months","Years"])
 
     smoking=st.selectbox("Smoking",["No","Yes"])
 
@@ -266,7 +264,7 @@ elif page=="📊 Patient Risk Timeline":
         if surgery=="Yes":
             base+=15
 
-        risks=[min(base+random.randint(-5,10),95) for i in years]
+        risks=[base+i*3 for i in range(5)]
 
         st.session_state.risk=risks[-1]
 
@@ -274,17 +272,15 @@ elif page=="📊 Patient Risk Timeline":
 
         plt.plot(years,risks,marker="o")
 
-        plt.title("Patient Health Risk Timeline")
-
         st.pyplot(fig)
 
-# --------------------------
+# --------------------------------------------------
 # REPORT
-# --------------------------
+# --------------------------------------------------
 
 elif page=="📑 AI Medical Report":
 
-    st.title("📑 AI Medical Report")
+    st.title("AI Medical Report")
 
     name=st.text_input("Patient Name")
 
@@ -292,9 +288,31 @@ elif page=="📑 AI Medical Report":
 
         pred=st.session_state.get("predicted",[])
 
+        symptoms=st.session_state.get("symptoms",[])
+
         risk=st.session_state.get("risk","Unknown")
 
-        text=f"Patient: {name}\nPredicted Diseases: {pred}\nRisk Score: {risk}"
+        explanation=""
+
+        for d in pred:
+
+            explanation+=f"{d} predicted due to symptoms overlap.\n"
+
+        text=f"""
+Patient: {name}
+
+Predicted Diseases: {pred}
+
+Matched Symptoms: {symptoms}
+
+Risk Score: {risk}
+
+Explanation:
+{explanation}
+
+Recommended next steps:
+Consult specialists and follow preventive care.
+"""
 
         styles=getSampleStyleSheet()
 
@@ -302,7 +320,7 @@ elif page=="📑 AI Medical Report":
 
         doc=SimpleDocTemplate(file.name)
 
-        story=[Paragraph("AI Healthcare Report",styles['Title']),
+        story=[Paragraph("AI Medical Report",styles['Title']),
         Spacer(1,20),
         Paragraph(text,styles['BodyText'])]
 
@@ -311,39 +329,42 @@ elif page=="📑 AI Medical Report":
         with open(file.name,"rb") as f:
             st.download_button("Download Report",f,"AI_Report.pdf")
 
-# --------------------------
-# CHATBOT
-# --------------------------
+# --------------------------------------------------
+# CHAT
+# --------------------------------------------------
 
 elif page=="💬 AI Medical Assistant":
 
-    st.title("💬 AI Medical Assistant")
+    st.title("AI Medical Assistant")
 
-    q=st.text_input("Ask a medical question")
+    q=st.text_input("Ask a health question")
 
     if st.button("Ask"):
+
         st.info("Connect GPT API here")
 
-# --------------------------
+# --------------------------------------------------
 # DOCTOR RECOMMENDATION
-# --------------------------
+# --------------------------------------------------
 
 elif page=="👨‍⚕ Doctor Recommendation":
 
-    st.title("👨‍⚕ Doctor Recommendation")
+    st.title("Doctor Recommendation")
 
     disease=st.selectbox("Select Disease",list(DISEASE_DATABASE.keys()))
 
     if disease:
 
-        doctor,adv=DISEASE_DATABASE[disease]
+        data=DISEASE_DATABASE[disease]
 
         st.markdown(f"""
 <div class="doctor-card">
 
-<h3>Consult: {doctor}</h3>
+<b>Consult:</b> {data["doctor"]}
 
-<p><b>Advice:</b> {adv}</p>
+<br><br>
+
+<b>Advice:</b> {data["advice"]}
 
 </div>
 """,unsafe_allow_html=True)
