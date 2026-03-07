@@ -1,4 +1,7 @@
+import openai
 import streamlit as st
+
+openai.api_key = st.secrets["OPENAI_API_KEY"]
 import random
 
 # ---------------------------------------------------
@@ -355,3 +358,4 @@ if st.session_state.page == "Doctor Recommendation":
         }
 
         st.info(tips.get(selected,"Maintain healthy lifestyle and consult doctor."))
+
