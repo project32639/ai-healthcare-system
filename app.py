@@ -15,8 +15,8 @@ st.markdown("""
 <style>
 
 .stApp{
-background:#2f52a4;
-color:white;
+background:#151B54;
+color:Night Blue;
 }
 
 .card-container{
@@ -27,7 +27,7 @@ margin-top:30px;
 }
 
 .card{
-background:#949eca;
+background:#4863AO;
 padding:35px;
 border-radius:15px;
 text-align:center;
@@ -45,7 +45,7 @@ background:#a8b1e5;
 }
 
 .model-box{
-background:#336296;
+background:#728FCE;
 padding:30px;
 border-radius:15px;
 font-size:20px;
@@ -63,11 +63,21 @@ cursor:pointer;
 }
 
 .report-box{
+.report-box{
 background:#7179ba;
 padding:18px;
 border-radius:12px;
 margin-top:20px;
 max-height:140px;
+transition: all 0.3s ease;
+box-shadow:0 6px 12px rgba(0,0,0,0.25);
+}
+
+.report-box:hover{
+transform:translateY(-6px);
+box-shadow:0 14px 30px rgba(0,0,0,0.35);
+background:#848ee0;
+cursor:pointer;
 }
 
 .report-box h3{
@@ -104,12 +114,62 @@ page = st.sidebar.radio(
 # ---------------------------------------------------------
 
 symptoms = [
-"Fever","Cough","Fatigue","Headache","Nausea","Vomiting","Chest Pain",
-"Shortness of Breath","Dizziness","Joint Pain","Muscle Pain","Abdominal Pain",
-"Sore Throat","Runny Nose","Sneezing","Loss of Appetite","Weight Loss",
-"Night Sweats","Blurred Vision","Frequent Urination","Excessive Thirst",
-"Swelling","Skin Rash","Palpitations","Back Pain","Cold Hands",
-"Dry Skin","Hair Loss","Anxiety","Depression","Insomnia","Diarrhea","Constipation"
+"Fever",
+"High Fever",
+"Cough",
+"Dry Cough",
+"Fatigue",
+"Headache",
+"Nausea",
+"Vomiting",
+"Chest Pain",
+"Shortness of Breath",
+"Abdominal Pain",
+"Back Pain",
+"Joint Pain",
+"Muscle Pain",
+"Sore Throat",
+"Runny Nose",
+"Nasal Congestion",
+"Weight Loss",
+"Weight Gain",
+"Blurred Vision",
+"Frequent Urination",
+"Increased Thirst",
+"Loss of Appetite",
+"Excessive Sweating",
+"Dizziness",
+"Palpitations",
+"Muscle Weakness",
+"Skin Rash",
+"Skin Redness",
+"Swelling",
+"Constipation",
+"Diarrhea",
+"Memory Loss",
+"Sleep Disturbance",
+"Insomnia",
+"Anxiety",
+"Depression",
+"Hair Loss",
+"Dry Skin",
+"Cold Intolerance",
+"Heat Intolerance",
+"Chills",
+"Night Sweats",
+"Yellowing of Skin (Jaundice)",
+"Dark Urine",
+"Pale Stool",
+"Difficulty Swallowing",
+"Heartburn",
+"Persistent Sneezing",
+"Loss of Taste",
+"Loss of Smell",
+"Confusion",
+"Difficulty Breathing",
+"Tingling Sensation",
+"Numbness",
+"Chest Tightness"
 ]
 
 diseases = [
@@ -122,13 +182,27 @@ diseases = [
 "Parkinson’s Disease","Alzheimer’s Risk","Metabolic Syndrome"
 ]
 
-doctor_map = {
-"Diabetes":("Endocrinologist","Maintain healthy diet, reduce sugar intake, exercise daily and monitor blood glucose regularly."),
-"Hypertension":("Cardiologist","Maintain low salt diet, manage stress levels, perform regular cardiovascular exercise."),
-"Heart Disease":("Cardiologist","Follow heart healthy diet, avoid smoking, maintain cholesterol levels and regular cardiac checkups."),
-"Asthma":("Pulmonologist","Avoid allergens, perform breathing exercises and follow inhaler medication schedule."),
-"Migraine":("Neurologist","Manage stress, maintain sleep cycle and avoid migraine trigger foods."),
-"Arthritis":("Rheumatologist","Maintain joint mobility through physiotherapy and anti-inflammatory diet."),
+disease_doctor = {
+"Diabetes":("Endocrinologist","Monitor blood sugar, follow a balanced low-sugar diet, maintain healthy weight, exercise daily and regularly check HbA1c levels."),
+"Hypertension":("Cardiologist","Reduce sodium intake, manage stress levels, maintain healthy BMI, monitor blood pressure frequently."),
+"Asthma":("Pulmonologist","Avoid allergens, use inhalers as prescribed, perform breathing exercises and maintain lung health."),
+"Heart Disease":("Cardiologist","Adopt heart-healthy diet, control cholesterol, avoid smoking and maintain active lifestyle."),
+"Thyroid Disorder":("Endocrinologist","Monitor thyroid hormones, ensure adequate iodine intake and follow medication schedule."),
+"Arthritis":("Rheumatologist","Maintain joint mobility through exercise, reduce inflammation through diet and monitor joint health."),
+"Kidney Disease":("Nephrologist","Reduce salt and protein overload, stay hydrated and monitor kidney function regularly."),
+"Depression":("Psychiatrist","Engage in counseling therapy, maintain social connections, regular sleep and balanced mental health support."),
+"Anemia":("Hematologist","Increase iron-rich foods, monitor hemoglobin levels and treat underlying nutritional deficiencies."),
+"Skin Infection":("Dermatologist","Maintain skin hygiene, apply prescribed topical treatments and avoid irritants."),
+"Obesity":("Nutritionist","Adopt calorie-balanced diet, maintain physical activity routine and track weight trends."),
+"Stroke Risk":("Neurologist","Control blood pressure, maintain healthy cholesterol and monitor neurological symptoms."),
+"Allergy":("Allergist","Avoid triggers, maintain medication compliance and monitor immune responses."),
+"GERD":("Gastroenterologist","Avoid spicy foods, eat smaller meals and maintain healthy digestion habits."),
+"Flu":("General Physician","Maintain hydration, adequate rest and immune boosting nutrition."),
+"COVID-19":("Infectious Disease Specialist","Monitor respiratory symptoms, maintain isolation if required and boost immunity."),
+"PCOS":("Gynecologist","Maintain hormonal balance through diet, exercise and regular gynecological monitoring."),
+"Cholesterol":("Cardiologist","Adopt heart healthy diet, reduce saturated fats and monitor lipid profile."),
+"Insomnia":("Sleep Specialist","Maintain sleep hygiene and avoid stimulants before bedtime."),
+"Migraine":("Neurologist","Manage triggers such as stress or dehydration and maintain regular sleep cycle.")
 }
 
 # ---------------------------------------------------------
@@ -354,4 +428,5 @@ elif page=="👨‍⚕ Doctor Recommendation":
 
 </div>
 """,unsafe_allow_html=True)
+
 
