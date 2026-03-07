@@ -5,50 +5,58 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet
 import tempfile
 
-st.set_page_config(page_title="AI Healthcare System", layout="wide")
+st.set_page_config(page_title="AI Healthcare Intelligence System", layout="wide")
 
-# -------------------------------------------------
-# DASHBOARD STYLE
-# -------------------------------------------------
+# -------------------------------
+# STYLE
+# -------------------------------
 
 st.markdown("""
 <style>
 
 .stApp{
-background: linear-gradient(135deg,#141E30,#243B55);
+background: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
 color:white;
-font-family:sans-serif;
+font-family:Arial;
 }
 
 .title{
 text-align:center;
 font-size:50px;
 font-weight:bold;
-margin-bottom:20px;
+margin-bottom:10px;
 }
 
-.card{
+.subtitle{
+text-align:center;
+font-size:22px;
+margin-bottom:40px;
+}
+
+.feature-box{
 background:linear-gradient(135deg,#1e5799,#2989d8);
-padding:30px;
+padding:25px;
 border-radius:15px;
 text-align:center;
-font-size:20px;
+font-size:18px;
 font-weight:600;
-box-shadow:0 8px 20px rgba(0,0,0,0.5);
+box-shadow:0 6px 20px rgba(0,0,0,0.5);
 transition:0.3s;
 margin-bottom:20px;
 }
 
-.card:hover{
+.feature-box:hover{
 transform:scale(1.05);
 background:linear-gradient(135deg,#2989d8,#6dd5fa);
 }
 
-.report-box{
+.info-box{
 background:linear-gradient(135deg,#1e5799,#2989d8);
-padding:20px;
-border-radius:10px;
+padding:30px;
+border-radius:15px;
 box-shadow:0 5px 15px rgba(0,0,0,0.4);
+margin-bottom:40px;
+font-size:18px;
 }
 
 .doctor-card{
@@ -66,11 +74,11 @@ transform:scale(1.05);
 </style>
 """, unsafe_allow_html=True)
 
-# -------------------------------------------------
-# DISEASE DATABASE (UNCHANGED)
-# -------------------------------------------------
+# -------------------------------
+# DISEASE DATABASE
+# -------------------------------
 
-DISEASE_DATABASE = {
+DISEASE_DATABASE={
 "Diabetes":("Endocrinologist","Monitor glucose, reduce sugar intake, exercise regularly"),
 "Hypertension":("Cardiologist","Reduce salt intake and manage stress"),
 "Heart Disease":("Cardiologist","Maintain heart healthy diet"),
@@ -108,65 +116,81 @@ DISEASE_DATABASE = {
 "Sinusitis":("ENT Specialist","Steam inhalation")
 }
 
-# -------------------------------------------------
-# SYMPTOMS
-# -------------------------------------------------
-
-SYMPTOMS = [
+SYMPTOMS=[
 "Fever","Cough","Fatigue","Headache","Chest Pain","Shortness of Breath",
 "Nausea","Vomiting","Dizziness","Joint Pain","Muscle Pain",
-"Weight Loss","Weight Gain","High Blood Sugar","Frequent Urination",
-"Blurred Vision","Skin Rash","Itching","Abdominal Pain",
-"Constipation","Diarrhea","Loss of Appetite","Insomnia",
-"Depression","Anxiety","Memory Loss","Confusion","Swelling",
-"Back Pain","Neck Pain","Sore Throat","Runny Nose",
-"Sweating","Palpitations","Hair Loss"
+"Weight Loss","Weight Gain","Frequent Urination","Blurred Vision",
+"Skin Rash","Itching","Abdominal Pain","Constipation","Diarrhea",
+"Loss of Appetite","Insomnia","Depression","Anxiety","Memory Loss",
+"Confusion","Swelling","Back Pain","Neck Pain","Sore Throat",
+"Runny Nose","Sweating","Palpitations","Hair Loss"
 ]
 
-# -------------------------------------------------
-# PAGE SESSION
-# -------------------------------------------------
+# -------------------------------
+# SIDEBAR NAVIGATION
+# -------------------------------
 
-if "page" not in st.session_state:
-    st.session_state.page="Home"
+page=st.sidebar.radio(
+"Navigation",
+[
+"Home",
+"AI Disease Prediction",
+"Patient Risk Timeline",
+"AI Medical Report",
+"AI Medical Assistant",
+"Doctor Recommendation"
+]
+)
 
-# -------------------------------------------------
-# HOME DASHBOARD
-# -------------------------------------------------
+# -------------------------------
+# HOME
+# -------------------------------
 
-if st.session_state.page=="Home":
+if page=="Home":
 
-    st.markdown('<div class="title">🏥 AI Healthcare Dashboard</div>',unsafe_allow_html=True)
+    st.markdown('<div class="title">🧬 AI Healthcare Intelligence System</div>',unsafe_allow_html=True)
+    st.markdown('<div class="subtitle">AI Powered Medical Decision Support</div>',unsafe_allow_html=True)
+
+    st.markdown("""
+<div class="info-box">
+
+🏥 <b>What This AI Model Does</b>
+
+✔ Predicts possible diseases from symptoms  
+✔ Analyzes patient symptom patterns  
+✔ Generates patient health risk timeline  
+✔ Provides explainable AI medical insights  
+✔ AI medical assistant for questions  
+✔ Doctor & specialist recommendations  
+✔ Preventive healthcare insights  
+
+</div>
+""",unsafe_allow_html=True)
 
     col1,col2,col3=st.columns(3)
 
     with col1:
-        if st.button("🧠 AI Disease Prediction"):
-            st.session_state.page="predict"
+        st.markdown('<div class="feature-box">🧠 AI Disease Prediction</div>',unsafe_allow_html=True)
 
     with col2:
-        if st.button("📊 Patient Risk Timeline"):
-            st.session_state.page="timeline"
+        st.markdown('<div class="feature-box">📊 Patient Risk Timeline</div>',unsafe_allow_html=True)
 
     with col3:
-        if st.button("📑 AI Medical Report"):
-            st.session_state.page="report"
+        st.markdown('<div class="feature-box">📑 AI Medical Report</div>',unsafe_allow_html=True)
 
     col4,col5=st.columns(2)
 
     with col4:
-        if st.button("💬 AI Medical Assistant"):
-            st.session_state.page="chat"
+        st.markdown('<div class="feature-box">💬 AI Medical Assistant</div>',unsafe_allow_html=True)
 
     with col5:
-        if st.button("👨‍⚕ Doctor Recommendation"):
-            st.session_state.page="doctor"
+        st.markdown('<div class="feature-box">👨‍⚕ Doctor Recommendation</div>',unsafe_allow_html=True)
 
-# -------------------------------------------------
-# AI DISEASE PREDICTION
-# -------------------------------------------------
+# -------------------------------
+# DISEASE PREDICTION
+# -------------------------------
 
-elif st.session_state.page=="predict":
+elif page=="AI Disease Prediction":
 
     st.title("🧠 AI Disease Prediction")
 
@@ -177,11 +201,12 @@ elif st.session_state.page=="predict":
     smoking=st.selectbox("Smoking",["Yes","No"])
 
     activity=st.selectbox(
-        "Physical Activity",
-        ["Very High","High","Moderate","Low","Very Low"]
+    "Physical Activity",
+    ["Very High","High","Moderate","Low","Very Low"]
     )
 
     height=st.number_input("Height (m)",1.0,2.5,1.7)
+
     weight=st.number_input("Weight (kg)",30,200,70)
 
     bmi=weight/(height**2)
@@ -190,7 +215,7 @@ elif st.session_state.page=="predict":
 
     symptoms=st.multiselect("Select Symptoms",SYMPTOMS)
 
-    custom_symptoms=st.text_input("Other Symptoms (comma separated)")
+    custom=st.text_input("Other Symptoms (comma separated)")
 
     if st.button("Predict Disease"):
 
@@ -202,23 +227,24 @@ elif st.session_state.page=="predict":
 
         fig=plt.figure()
         plt.bar(predicted,probs)
-        plt.title("Disease Probability %")
+        plt.title("Disease Probability")
         st.pyplot(fig)
 
         for d,p in zip(predicted,probs):
 
-            doctor,tips=DISEASE_DATABASE[d]
+            doc,adv=DISEASE_DATABASE[d]
 
             st.success(f"{d} ({p}%)")
 
-            st.write("Doctor:",doctor)
-            st.write("Advice:",tips)
+            st.write("Doctor:",doc)
 
-# -------------------------------------------------
+            st.write("Advice:",adv)
+
+# -------------------------------
 # RISK TIMELINE
-# -------------------------------------------------
+# -------------------------------
 
-elif st.session_state.page=="timeline":
+elif page=="Patient Risk Timeline":
 
     st.title("📊 Patient Risk Timeline")
 
@@ -234,8 +260,8 @@ elif st.session_state.page=="timeline":
     smoking=st.selectbox("Smoking",["No","Yes"])
 
     activity=st.selectbox(
-        "Physical Activity",
-        ["Very High","High","Moderate","Low","Very Low"]
+    "Physical Activity",
+    ["Very High","High","Moderate","Low","Very Low"]
     )
 
     if st.button("Generate Timeline"):
@@ -255,15 +281,18 @@ elif st.session_state.page=="timeline":
         st.session_state.risk=risks[-1]
 
         fig=plt.figure()
+
         plt.plot(years,risks,marker="o")
-        plt.title("Health Risk Timeline")
+
+        plt.title("Patient Health Risk Timeline")
+
         st.pyplot(fig)
 
-# -------------------------------------------------
+# -------------------------------
 # REPORT
-# -------------------------------------------------
+# -------------------------------
 
-elif st.session_state.page=="report":
+elif page=="AI Medical Report":
 
     st.title("📑 AI Medical Report")
 
@@ -271,10 +300,11 @@ elif st.session_state.page=="report":
 
     if st.button("Generate Report"):
 
-        predicted=st.session_state.get("predicted",[])
+        pred=st.session_state.get("predicted",[])
+
         risk=st.session_state.get("risk","Unknown")
 
-        text=f"Patient: {name}\nPredicted Diseases: {predicted}\nRisk Score: {risk}"
+        report=f"Patient: {name}\nPredicted Diseases: {pred}\nRisk Score: {risk}"
 
         styles=getSampleStyleSheet()
 
@@ -284,31 +314,31 @@ elif st.session_state.page=="report":
 
         story=[Paragraph("AI Healthcare Report",styles['Title']),
         Spacer(1,20),
-        Paragraph(text,styles['BodyText'])]
+        Paragraph(report,styles['BodyText'])]
 
         doc.build(story)
 
         with open(file.name,"rb") as f:
-            st.download_button("Download PDF",f,"medical_report.pdf")
+            st.download_button("Download Report",f,"AI_Report.pdf")
 
-# -------------------------------------------------
+# -------------------------------
 # CHATBOT
-# -------------------------------------------------
+# -------------------------------
 
-elif st.session_state.page=="chat":
+elif page=="AI Medical Assistant":
 
     st.title("💬 AI Medical Assistant")
 
-    q=st.text_input("Ask medical question")
+    q=st.text_input("Ask your medical question")
 
     if st.button("Ask"):
         st.info("Connect GPT API here")
 
-# -------------------------------------------------
+# -------------------------------
 # DOCTOR RECOMMENDATION
-# -------------------------------------------------
+# -------------------------------
 
-elif st.session_state.page=="doctor":
+elif page=="Doctor Recommendation":
 
     st.title("👨‍⚕ Doctor Recommendation")
 
@@ -316,11 +346,14 @@ elif st.session_state.page=="doctor":
 
     if disease:
 
-        doctor,tips=DISEASE_DATABASE[disease]
+        doctor,adv=DISEASE_DATABASE[disease]
 
         st.markdown(f"""
-        <div class="doctor-card">
-        <h3>Consult: {doctor}</h3>
-        <p><b>Advice:</b> {tips}</p>
-        </div>
-        """,unsafe_allow_html=True)
+<div class="doctor-card">
+
+<h3>Consult: {doctor}</h3>
+
+<p><b>Advice:</b> {adv}</p>
+
+</div>
+""",unsafe_allow_html=True)
