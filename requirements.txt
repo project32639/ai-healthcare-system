@@ -7,3 +7,13 @@ joblib
 requests
 shap
 openai
+streamlit
+pandas
+numpy
+scikit-learn
+matplotlib
+fpdf
+openai
+matplotlib
+fpdf
+openai
