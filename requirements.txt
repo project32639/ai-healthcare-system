@@ -6,3 +6,4 @@ plotly
 joblib
 requests
 shap
+openai
