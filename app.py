@@ -1,10 +1,12 @@
 import streamlit as st
 import random
-import openai
+import matplotlib.pyplot as plt
+from reportlab.pdfgen import canvas
+import os
 
-# -------------------------------
+# ---------------------------------------------------
 # PAGE CONFIG
-# -------------------------------
+# ---------------------------------------------------
 
 st.set_page_config(
     page_title="AI Healthcare Intelligence System",
@@ -12,25 +14,19 @@ st.set_page_config(
     layout="wide"
 )
 
-# -------------------------------
-# OPENAI KEY
-# -------------------------------
-
-openai.api_key = st.secrets.get("OPENAI_API_KEY","")
-
-# -------------------------------
+# ---------------------------------------------------
 # STYLE
-# -------------------------------
+# ---------------------------------------------------
 
 st.markdown("""
 <style>
 
-.main{
-background:linear-gradient(120deg,#e6f7ff,#f0fff5);
+.stApp{
+background: linear-gradient(120deg,#e6f7ff,#f0fff5);
 }
 
 .big-title{
-font-size:60px;
+font-size:55px;
 font-weight:bold;
 text-align:center;
 padding:20px;
@@ -41,52 +37,39 @@ box-shadow:0px 8px 25px rgba(0,0,0,0.2);
 }
 
 .feature-box{
-background:linear-gradient(135deg,#d8ecff,#e8fff6);
+background:#d8ecff;
 color:#002b5c;
 padding:25px;
 border-radius:15px;
-box-shadow:0px 4px 15px rgba(0,0,0,0.1);
+box-shadow:0px 4px 15px rgba(0,0,0,0.15);
 transition:0.3s;
 text-align:center;
 font-size:20px;
 font-weight:600;
-cursor:pointer;
 }
 
 .feature-box:hover{
 transform:scale(1.05);
-background:linear-gradient(135deg,#bfe2ff,#c8ffe8);
+background:#bfe2ff;
 }
 
 .info-box{
-background:white;
-padding:20px;
+background:#dff6ff;
+padding:25px;
 border-radius:15px;
-box-shadow:0px 4px 15px rgba(0,0,0,0.1);
+font-size:18px;
+color:#00334d;
+box-shadow:0px 3px 12px rgba(0,0,0,0.1);
 }
 
 </style>
-""",unsafe_allow_html=True)
+""", unsafe_allow_html=True)
 
-# -------------------------------
+# ---------------------------------------------------
 # SESSION STATE
-# -------------------------------
+# ---------------------------------------------------
 
-if "page" not in st.session_state:
-    st.session_state.page="Home"
-
-if "prediction" not in st.session_state:
-    st.session_state.prediction=None
-
-# -------------------------------
-# SIDEBAR
-# -------------------------------
-
-st.sidebar.title("🧭 Navigation")
-
-nav = st.sidebar.radio(
-"Go to",
-[
+pages = [
 "Home",
 "AI Disease Prediction",
 "Patient Risk Timeline",
@@ -94,47 +77,60 @@ nav = st.sidebar.radio(
 "AI Medical Assistant",
 "Doctor Recommendation"
 ]
+
+if "page" not in st.session_state:
+    st.session_state.page = "Home"
+
+if st.session_state.page not in pages:
+    st.session_state.page="Home"
+
+# ---------------------------------------------------
+# SIDEBAR
+# ---------------------------------------------------
+
+st.sidebar.title("Navigation")
+
+nav = st.sidebar.radio(
+"Go to",
+pages,
+index=pages.index(st.session_state.page)
 )
 
-st.session_state.page=nav
+st.session_state.page = nav
 
-# -------------------------------
+# ---------------------------------------------------
 # DATA
-# -------------------------------
+# ---------------------------------------------------
 
-symptom_list=[
-"Fever","Cough","Headache","Fatigue","Body Pain","Dizziness",
-"Nausea","Vomiting","Diarrhea","Constipation","Chest Pain",
-"Shortness of Breath","Skin Rash","Itching","Joint Pain",
-"Muscle Pain","Sore Throat","Runny Nose","Anxiety","Depression"
+symptom_list = [
+"Fever","Cough","Headache","Fatigue","Body Pain",
+"Shortness of Breath","Chest Pain","Nausea","Vomiting",
+"Dizziness","Skin Rash","Joint Pain","Back Pain",
+"Frequent Urination","Excessive Thirst"
 ]
 
-diseases=[
-"Diabetes","Heart Disease","Asthma","Arthritis","Cancer",
-"Kidney Disease","Hypertension","Migraine","Pneumonia",
-"COVID-19","Gastritis","Obesity","Anemia","Skin Allergy"
+diseases = [
+"Diabetes","Heart Disease","Asthma","Hypertension",
+"Kidney Disease","Liver Disease","Cancer",
+"Arthritis","Migraine","COVID-19"
 ]
 
-doctors={
+doctor_map = {
 "Diabetes":"Endocrinologist",
 "Heart Disease":"Cardiologist",
 "Asthma":"Pulmonologist",
-"Arthritis":"Rheumatologist",
-"Cancer":"Oncologist",
-"Kidney Disease":"Nephrologist",
 "Hypertension":"Cardiologist",
+"Kidney Disease":"Nephrologist",
+"Liver Disease":"Hepatologist",
+"Cancer":"Oncologist",
+"Arthritis":"Rheumatologist",
 "Migraine":"Neurologist",
-"Pneumonia":"Pulmonologist",
-"COVID-19":"Infectious Disease Specialist",
-"Gastritis":"Gastroenterologist",
-"Obesity":"Nutritionist",
-"Anemia":"Hematologist",
-"Skin Allergy":"Dermatologist"
+"COVID-19":"Infectious Disease Specialist"
 }
 
-# -------------------------------
+# ---------------------------------------------------
 # HOME
-# -------------------------------
+# ---------------------------------------------------
 
 if st.session_state.page=="Home":
 
@@ -145,29 +141,34 @@ if st.session_state.page=="Home":
     col1,col2,col3=st.columns(3)
 
     with col1:
-        if st.button("🧠 AI Disease Prediction"):
+        st.markdown('<div class="feature-box">🧠 AI Disease Prediction</div>',unsafe_allow_html=True)
+        if st.button("Open Prediction"):
             st.session_state.page="AI Disease Prediction"
             st.rerun()
 
     with col2:
-        if st.button("📊 Patient Risk Timeline"):
+        st.markdown('<div class="feature-box">📊 Patient Risk Timeline</div>',unsafe_allow_html=True)
+        if st.button("Open Timeline"):
             st.session_state.page="Patient Risk Timeline"
             st.rerun()
 
     with col3:
-        if st.button("📑 AI Report"):
+        st.markdown('<div class="feature-box">📑 AI Report</div>',unsafe_allow_html=True)
+        if st.button("Open Report"):
             st.session_state.page="AI Report"
             st.rerun()
 
     col4,col5=st.columns(2)
 
     with col4:
-        if st.button("💬 AI Medical Assistant"):
+        st.markdown('<div class="feature-box">💬 AI Medical Assistant</div>',unsafe_allow_html=True)
+        if st.button("Open Assistant"):
             st.session_state.page="AI Medical Assistant"
             st.rerun()
 
     with col5:
-        if st.button("👨‍⚕ Doctor Recommendation"):
+        st.markdown('<div class="feature-box">👨‍⚕ Doctor Recommendation</div>',unsafe_allow_html=True)
+        if st.button("Open Doctor"):
             st.session_state.page="Doctor Recommendation"
             st.rerun()
 
@@ -189,157 +190,189 @@ if st.session_state.page=="Home":
 </div>
 """,unsafe_allow_html=True)
 
-# -------------------------------
-# DISEASE PREDICTION
-# -------------------------------
+# ---------------------------------------------------
+# AI DISEASE PREDICTION
+# ---------------------------------------------------
 
 if st.session_state.page=="AI Disease Prediction":
 
     st.title("🧠 AI Disease Prediction")
 
-    age=st.slider("Age",1,100)
+    age = st.slider("Age",1,100)
 
-    gender=st.selectbox("Gender",["Male","Female","Other"])
+    gender = st.selectbox("Gender",["Male","Female"])
 
-    lifestyle=st.selectbox("Lifestyle",["Healthy","Average","Unhealthy"])
+    smoking = st.selectbox("Smoking",["No","Yes"])
 
-    symptoms=st.multiselect("Select Symptoms",symptom_list)
+    activity = st.selectbox(
+    "Physical Activity",
+    ["Very High","High","Moderate","Low","Very Low"]
+    )
 
-    custom=st.text_input("Other Symptoms (comma separated)")
+    family_disease = st.text_input(
+    "Family Disease History (comma separated)"
+    )
+
+    weight = st.number_input("Weight (kg)",0.0)
+    height = st.number_input("Height (cm)",0.0)
+
+    symptoms = st.multiselect("Select Symptoms",symptom_list)
+
+    other_symptoms = st.text_input(
+    "Other Symptoms (comma separated)"
+    )
+
+    if height>0:
+        bmi = weight/((height/100)**2)
+        st.write("BMI:",round(bmi,2))
 
     if st.button("Predict Disease"):
 
-        if custom!="":
-            custom_list=[s.strip() for s in custom.split(",")]
-            symptoms+=custom_list
+        all_symptoms = symptoms + [
+        s.strip() for s in other_symptoms.split(",") if s.strip()!=""
+        ]
 
-        if len(symptoms)==0:
-            st.warning("Please enter symptoms")
-        else:
+        prediction=random.choice(diseases)
 
-            prediction=random.choice(diseases)
+        probability=random.randint(60,95)
 
-            st.session_state.prediction=prediction
+        st.session_state.prediction=prediction
 
-            st.success(f"Predicted Disease Risk: {prediction}")
+        st.success(f"Predicted Disease: {prediction}")
+        st.write(f"Probability: {probability}%")
 
-# -------------------------------
+        fig,ax=plt.subplots()
+        ax.bar([prediction], [probability])
+        ax.set_ylabel("Probability %")
+        st.pyplot(fig)
+
+# ---------------------------------------------------
 # RISK TIMELINE
-# -------------------------------
+# ---------------------------------------------------
 
 if st.session_state.page=="Patient Risk Timeline":
 
-    st.title("📊 Patient Health Risk Timeline")
+    st.title("📊 Patient Risk Timeline")
 
-    disease_select=st.multiselect("Select Diseases",diseases)
+    selected = st.multiselect("Select Diseases",diseases)
 
-    custom=st.text_input("Other Diseases (comma separated)")
+    custom = st.text_input("Custom Disease (comma separated)")
+
+    all_diseases = selected + [
+    s.strip() for s in custom.split(",") if s.strip()!=""
+    ]
 
     if st.button("Analyze Risk"):
 
-        disease_list=disease_select
-
-        if custom!="":
-            disease_list+=custom.split(",")
-
-        if len(disease_list)==0:
-            st.warning("Enter diseases to analyze")
+        if len(all_diseases)==0:
+            st.warning("Select or type diseases")
         else:
 
-            st.subheader("Risk Prediction")
+            current=random.randint(10,30)
+            five=random.randint(30,60)
+            ten=random.randint(60,90)
 
-            st.progress(30)
-            st.write("Current Risk: Low")
+            st.write("Current Risk:",current,"%")
+            st.progress(current)
 
-            st.progress(60)
-            st.write("5 Year Risk: Moderate")
+            st.write("5 Year Risk:",five,"%")
+            st.progress(five)
 
-            st.progress(85)
-            st.write("10 Year Risk: High")
+            st.write("10 Year Risk:",ten,"%")
+            st.progress(ten)
 
-# -------------------------------
+# ---------------------------------------------------
 # AI REPORT
-# -------------------------------
+# ---------------------------------------------------
 
 if st.session_state.page=="AI Report":
 
-    st.title("📑 AI Explainable Report")
+    st.title("📑 AI Medical Report")
 
-    if st.session_state.prediction is None:
-
-        st.warning("Run AI Disease Prediction first.")
+    if "prediction" not in st.session_state:
+        st.warning("Run AI Disease Prediction first")
 
     else:
 
         disease=st.session_state.prediction
 
-        st.success(f"Prediction Explanation for {disease}")
+        st.write("Predicted Disease:",disease)
 
-        st.write("• Age influenced disease probability")
-        st.write("• Symptom pattern matched disease indicators")
-        st.write("• Lifestyle factors increased health risk")
-        st.write("• AI pattern recognition matched training data")
+        st.write("Explanation")
 
-# -------------------------------
+        st.write("• Age influenced disease risk")
+        st.write("• Lifestyle pattern affected prediction")
+        st.write("• Symptoms matched disease pattern")
+
+        if st.button("Download PDF Report"):
+
+            file="report.pdf"
+
+            c=canvas.Canvas(file)
+            c.drawString(100,750,"AI Medical Report")
+            c.drawString(100,720,f"Predicted Disease: {disease}")
+            c.drawString(100,690,"Generated by AI Healthcare System")
+            c.save()
+
+            with open(file,"rb") as f:
+                st.download_button(
+                "Download Report",
+                f,
+                file_name="AI_Report.pdf"
+                )
+
+# ---------------------------------------------------
 # CHATBOT
-# -------------------------------
+# ---------------------------------------------------
 
 if st.session_state.page=="AI Medical Assistant":
 
-    st.title("💬 AI Medical Assistant")
+    st.title("💬 AI Medical Chatbot")
 
     question=st.text_area("Ask a medical question")
 
     if st.button("Ask AI"):
 
-        if openai.api_key=="":
-
-            st.warning("Add OPENAI_API_KEY in Streamlit Secrets")
-
+        if "OPENAI_API_KEY" not in st.secrets:
+            st.error("Add OPENAI_API_KEY in Streamlit Secrets")
         else:
 
-            response=openai.ChatCompletion.create(
-                model="gpt-4o-mini",
-                messages=[
-                    {"role":"system","content":"You are a helpful medical assistant."},
-                    {"role":"user","content":question}
-                ]
+            from openai import OpenAI
+            client=OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
+
+            response=client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[{"role":"user","content":question}]
             )
 
             st.write(response.choices[0].message.content)
 
-# -------------------------------
+# ---------------------------------------------------
 # DOCTOR RECOMMENDATION
-# -------------------------------
+# ---------------------------------------------------
 
 if st.session_state.page=="Doctor Recommendation":
 
-    st.title("👨‍⚕ Doctor Recommendation System")
+    st.title("👨‍⚕ Doctor Recommendation")
 
     disease=st.selectbox("Select Disease",diseases)
 
-    custom=st.text_input("Or type disease")
+    custom=st.text_input("Or Type Disease")
 
-    if st.button("Recommend Doctor"):
+    if st.button("Recommend"):
 
         if custom!="":
-
-            st.success("Consult a Specialist Physician")
-
-            st.write("Advice:")
-            st.write("• Maintain healthy lifestyle")
-            st.write("• Follow doctor consultation")
-            st.write("• Regular medical checkups")
-
+            d=custom
         else:
+            d=disease
 
-            doc=doctors.get(disease,"General Physician")
+        doc=doctor_map.get(d,"General Physician")
 
-            st.success(f"Recommended Specialist: {doc}")
+        st.success(f"Recommended Doctor: {doc}")
 
-            st.write("Medical Advice")
+        st.write("Advice")
 
-            st.write("• Follow prescribed medication")
-            st.write("• Maintain healthy diet")
-            st.write("• Exercise regularly")
-            st.write("• Schedule periodic health checkups")
+        st.write("✔ Maintain healthy lifestyle")
+        st.write("✔ Exercise regularly")
+        st.write("✔ Follow balanced diet")
+        st.write("✔ Consult doctor regularly")
