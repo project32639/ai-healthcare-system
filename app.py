@@ -4,107 +4,106 @@ import matplotlib.pyplot as plt
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet
 import tempfile
-import os
-
-# ---------------------------------------------------
-# PAGE CONFIG
-# ---------------------------------------------------
 
 st.set_page_config(page_title="AI Healthcare System", layout="wide")
 
-# ---------------------------------------------------
-# STYLE (ROYAL BLUE UI)
-# ---------------------------------------------------
+# ------------------------------------------------
+# STYLE (ROYAL BLUE DASHBOARD)
+# ------------------------------------------------
 
 st.markdown("""
 <style>
 
-[data-testid="stAppViewContainer"]{
-background: linear-gradient(135deg,#0b1f5e,#001133);
+.stApp{
+background: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
 color:white;
 }
 
-.big-title{
-font-size:55px;
+.dashboard-title{
+font-size:50px;
 font-weight:bold;
 text-align:center;
-padding:20px;
-border-radius:20px;
-background:linear-gradient(90deg,#00c6ff,#0072ff);
-color:white;
+margin-bottom:30px;
 }
 
-.feature-box{
-background:linear-gradient(135deg,#1a3fb3,#2957ff);
-color:white;
-padding:25px;
-border-radius:15px;
-box-shadow:0px 6px 20px rgba(0,0,0,0.3);
+.card{
+background: linear-gradient(135deg,#1f4e79,#3c8dbc);
+padding:30px;
+border-radius:18px;
 text-align:center;
 font-size:20px;
 font-weight:600;
+color:white;
+box-shadow:0px 8px 25px rgba(0,0,0,0.4);
+transition:0.3s;
+margin-bottom:20px;
 }
 
-.info-box{
-background:linear-gradient(135deg,#1a3fb3,#2957ff);
+.card:hover{
+transform:scale(1.05);
+background:linear-gradient(135deg,#3c8dbc,#5dade2);
+}
+
+.info{
+background:linear-gradient(135deg,#1f4e79,#3c8dbc);
 padding:25px;
 border-radius:15px;
+margin-bottom:30px;
 font-size:18px;
 }
 
 </style>
 """, unsafe_allow_html=True)
 
-# ---------------------------------------------------
-# DISEASE DATABASE (35+)
-# ---------------------------------------------------
+# ------------------------------------------------
+# DISEASE DATABASE (35)
+# ------------------------------------------------
 
 DISEASE_DATABASE = {
 
-"Diabetes":("Endocrinologist","Control sugar, exercise, monitor glucose"),
-"Hypertension":("Cardiologist","Reduce salt, manage stress"),
-"Heart Disease":("Cardiologist","Healthy diet and avoid smoking"),
-"Asthma":("Pulmonologist","Avoid allergens and use inhaler"),
-"Stroke":("Neurologist","Control BP and cholesterol"),
-"Arthritis":("Rheumatologist","Joint exercise and anti inflammatory diet"),
-"Depression":("Psychiatrist","Counseling and mental health care"),
-"Anxiety Disorder":("Psychiatrist","Stress management and therapy"),
-"Kidney Disease":("Nephrologist","Drink water and control BP"),
-"Liver Disease":("Hepatologist","Avoid alcohol and fatty foods"),
-"Obesity":("Nutritionist","Balanced diet and exercise"),
-"Thyroid Disorder":("Endocrinologist","Regular thyroid checkups"),
-"Migraine":("Neurologist","Avoid triggers and maintain sleep"),
+"Diabetes":("Endocrinologist","Monitor glucose, reduce sugar intake, exercise regularly"),
+"Hypertension":("Cardiologist","Reduce salt intake and manage stress"),
+"Heart Disease":("Cardiologist","Maintain heart healthy diet"),
+"Asthma":("Pulmonologist","Avoid allergens and pollution"),
+"Stroke":("Neurologist","Control blood pressure"),
+"Arthritis":("Rheumatologist","Regular joint exercise"),
+"Depression":("Psychiatrist","Mental therapy and support"),
+"Anxiety Disorder":("Psychiatrist","Meditation and therapy"),
+"Kidney Disease":("Nephrologist","Stay hydrated and control BP"),
+"Liver Disease":("Hepatologist","Avoid alcohol"),
+"Obesity":("Nutritionist","Healthy diet and exercise"),
+"Thyroid Disorder":("Endocrinologist","Regular hormone check"),
+"Migraine":("Neurologist","Maintain sleep cycle"),
 "COVID-19":("Infectious Disease Specialist","Vaccination and hygiene"),
-"Tuberculosis":("Pulmonologist","Complete medication course"),
+"Tuberculosis":("Pulmonologist","Complete antibiotics course"),
 "Malaria":("General Physician","Prevent mosquito bites"),
-"Dengue":("General Physician","Hydration and mosquito protection"),
-"Pneumonia":("Pulmonologist","Vaccination and avoid smoking"),
-"Bronchitis":("Pulmonologist","Avoid pollution and smoking"),
+"Dengue":("General Physician","Hydration and mosquito control"),
+"Pneumonia":("Pulmonologist","Vaccination recommended"),
+"Bronchitis":("Pulmonologist","Avoid smoking"),
 "Skin Allergy":("Dermatologist","Avoid allergens"),
-"Psoriasis":("Dermatologist","Skin care and stress reduction"),
+"Psoriasis":("Dermatologist","Moisturize skin"),
 "Gastritis":("Gastroenterologist","Avoid spicy food"),
-"Ulcer":("Gastroenterologist","Avoid NSAIDs and alcohol"),
-"IBS":("Gastroenterologist","Fiber diet and stress control"),
+"Ulcer":("Gastroenterologist","Limit NSAIDs"),
+"IBS":("Gastroenterologist","Fiber rich diet"),
 "Parkinson’s Disease":("Neurologist","Physical therapy"),
-"Alzheimer’s Disease":("Neurologist","Brain exercises"),
-"Osteoporosis":("Orthopedic","Calcium and vitamin D"),
+"Alzheimer’s Disease":("Neurologist","Brain stimulation activities"),
+"Osteoporosis":("Orthopedic","Calcium intake"),
 "Anemia":("Hematologist","Iron rich foods"),
 "Cancer":("Oncologist","Regular screening"),
 "Prostate Disorder":("Urologist","Regular prostate exam"),
-"PCOS":("Gynecologist","Weight control and hormone care"),
-"Endometriosis":("Gynecologist","Pain management"),
-"Glaucoma":("Ophthalmologist","Eye checkups"),
-"Cataract":("Ophthalmologist","Eye surgery if required"),
+"PCOS":("Gynecologist","Weight control"),
+"Endometriosis":("Gynecologist","Hormone therapy"),
+"Glaucoma":("Ophthalmologist","Eye pressure monitoring"),
+"Cataract":("Ophthalmologist","Eye surgery"),
 "Sinusitis":("ENT Specialist","Steam inhalation")
 
 }
 
-# ---------------------------------------------------
-# SYMPTOMS (35+)
-# ---------------------------------------------------
+# ------------------------------------------------
+# SYMPTOMS (35)
+# ------------------------------------------------
 
 SYMPTOMS = [
-
 "Fever","Cough","Fatigue","Headache","Chest Pain","Shortness of Breath",
 "Nausea","Vomiting","Dizziness","Joint Pain","Muscle Pain",
 "Weight Loss","Weight Gain","High Blood Sugar","Frequent Urination",
@@ -113,84 +112,122 @@ SYMPTOMS = [
 "Depression","Anxiety","Memory Loss","Confusion","Swelling",
 "Back Pain","Neck Pain","Sore Throat","Runny Nose",
 "Sweating","Palpitations","Hair Loss"
-
 ]
 
-# ---------------------------------------------------
+# ------------------------------------------------
 # NAVIGATION
-# ---------------------------------------------------
+# ------------------------------------------------
 
-page = st.sidebar.selectbox("Navigation",[
+if "page" not in st.session_state:
+    st.session_state.page="Home"
+
+page=st.sidebar.selectbox(
+"Navigation",
+[
 "Home",
 "AI Disease Prediction",
 "Patient Risk Timeline",
 "AI Report",
 "AI Medical Assistant",
 "Doctor Recommendation"
-])
+],
+index=["Home",
+"AI Disease Prediction",
+"Patient Risk Timeline",
+"AI Report",
+"AI Medical Assistant",
+"Doctor Recommendation"].index(st.session_state.page)
+)
 
-# ---------------------------------------------------
-# HOME
-# ---------------------------------------------------
+st.session_state.page=page
+
+# ------------------------------------------------
+# HOME PAGE
+# ------------------------------------------------
 
 if page=="Home":
 
-    st.markdown('<div class="big-title">🏥 AI Healthcare System</div>', unsafe_allow_html=True)
+    st.markdown('<div class="dashboard-title">🏥 AI Healthcare Dashboard</div>',unsafe_allow_html=True)
 
     st.markdown("""
-<div class="info-box">
+<div class="info">
 
-🏥 What This AI Model Does  
-✔ Predicts possible diseases from symptoms  
-✔ Analyzes patient symptom patterns  
-✔ Generates health risk timeline predictions  
-✔ Provides explainable AI medical insights  
-✔ AI medical chatbot for questions  
-✔ Doctor & specialist recommendations  
-✔ Preventive healthcare insights  
+✔ Predict diseases from symptoms  
+✔ Generate patient risk timeline  
+✔ Create AI medical reports  
+✔ BMI health monitoring  
+✔ AI medical assistant  
+✔ Doctor specialist recommendation  
 
 </div>
-""", unsafe_allow_html=True)
+""",unsafe_allow_html=True)
 
     col1,col2,col3=st.columns(3)
 
-    col1.markdown('<div class="feature-box">🧠 AI Disease Prediction</div>',unsafe_allow_html=True)
-    col2.markdown('<div class="feature-box">📊 Patient Risk Timeline</div>',unsafe_allow_html=True)
-    col3.markdown('<div class="feature-box">📑 AI Report</div>',unsafe_allow_html=True)
+    with col1:
+        if st.button("🧠 AI Disease Prediction"):
+            st.session_state.page="AI Disease Prediction"
+
+    with col2:
+        if st.button("📊 Patient Risk Timeline"):
+            st.session_state.page="Patient Risk Timeline"
+
+    with col3:
+        if st.button("📑 AI Report"):
+            st.session_state.page="AI Report"
 
     col4,col5=st.columns(2)
 
-    col4.markdown('<div class="feature-box">💬 AI Medical Assistant</div>',unsafe_allow_html=True)
-    col5.markdown('<div class="feature-box">👨‍⚕ Doctor Recommendation</div>',unsafe_allow_html=True)
+    with col4:
+        if st.button("💬 AI Medical Assistant"):
+            st.session_state.page="AI Medical Assistant"
 
-# ---------------------------------------------------
-# AI DISEASE PREDICTION
-# ---------------------------------------------------
+    with col5:
+        if st.button("👨‍⚕ Doctor Recommendation"):
+            st.session_state.page="Doctor Recommendation"
+
+    st.write("")
+    st.write("")
+
+    # BMI
+    st.subheader("⚕ BMI Calculator")
+
+    col1,col2=st.columns(2)
+
+    with col1:
+        height=st.number_input("Height (meters)",1.0,2.5,1.7)
+
+    with col2:
+        weight=st.number_input("Weight (kg)",30,200,70)
+
+    bmi=weight/(height**2)
+
+    st.success(f"BMI: {round(bmi,2)}")
+
+# ------------------------------------------------
+# DISEASE PREDICTION
+# ------------------------------------------------
 
 elif page=="AI Disease Prediction":
 
     st.title("🧠 AI Disease Prediction")
 
-    age = st.slider("Age",1,100)
+    age=st.slider("Age",1,100)
 
-    gender = st.selectbox("Gender",["Male","Female"])
+    gender=st.selectbox("Gender",["Male","Female"])
 
-    smoking = st.selectbox("Smoking",["No","Yes"])
+    smoking=st.selectbox("Smoking",["Yes","No"])
 
-    activity = st.selectbox("Physical Activity",
+    activity=st.selectbox("Physical Activity",
     ["Very High","High","Moderate","Low","Very Low"])
 
-    symptoms = st.multiselect("Select Symptoms",SYMPTOMS)
+    symptoms=st.multiselect("Select Symptoms",SYMPTOMS)
 
-    custom_symptoms = st.text_input("Other Symptoms (comma separated)")
+    custom_symptoms=st.text_input("Other Symptoms (comma separated)")
 
     if st.button("Predict Disease"):
 
-        diseases=list(DISEASE_DATABASE.keys())
-
-        predicted=random.sample(diseases,3)
-
-        st.subheader("Predicted Diseases")
+        predicted=random.sample(list(DISEASE_DATABASE.keys()),3)
 
         for d in predicted:
 
@@ -198,13 +235,12 @@ elif page=="AI Disease Prediction":
 
             doctor,tips=DISEASE_DATABASE[d]
 
-            st.success(f"{d} ({prob}% probability)")
+            st.success(f"{d} ({prob}%)")
 
-            st.write("Specialist:",doctor)
+            st.write("Doctor:",doctor)
 
             st.write("Advice:",tips)
 
-        # risk graph
         probs=[random.randint(40,95) for _ in predicted]
 
         fig=plt.figure()
@@ -215,35 +251,73 @@ elif page=="AI Disease Prediction":
 
         st.pyplot(fig)
 
-# ---------------------------------------------------
+# ------------------------------------------------
 # PATIENT RISK TIMELINE
-# ---------------------------------------------------
+# ------------------------------------------------
 
 elif page=="Patient Risk Timeline":
 
     st.title("📊 Patient Risk Timeline")
 
-    selected=st.multiselect("Select Diseases",list(DISEASE_DATABASE.keys()))
+    diseases=st.multiselect(
+    "Select Diseases",
+    list(DISEASE_DATABASE.keys())
+    )
 
-    custom=st.text_input("Add Other Diseases (comma separated)")
+    custom=st.text_input(
+    "Add Other Diseases (comma separated)"
+    )
 
-    if selected:
+    surgery=st.selectbox(
+    "Any Past Surgery?",
+    ["No","Yes"]
+    )
+
+    if surgery=="Yes":
+
+        surgery_type=st.text_input("Surgery Type")
+
+    smoking=st.selectbox(
+    "Smoking",
+    ["No","Yes"]
+    )
+
+    activity=st.selectbox(
+    "Physical Activity",
+    ["Very High","High","Moderate","Low","Very Low"]
+    )
+
+    if st.button("Generate Timeline"):
 
         years=["2025","2026","2027","2028","2029"]
 
-        risk=[random.randint(10,90) for _ in years]
+        base=20
+
+        base+=len(diseases)*5
+
+        if smoking=="Yes":
+            base+=10
+
+        if surgery=="Yes":
+            base+=15
+
+        risks=[min(base+random.randint(-5,10),95) for i in years]
 
         fig=plt.figure()
 
-        plt.plot(years,risk,marker="o")
+        plt.plot(years,risks,marker="o")
 
         plt.title("Risk Timeline")
 
         st.pyplot(fig)
 
-# ---------------------------------------------------
+        if surgery=="Yes":
+
+            st.warning("Post surgery risk may increase complications. Regular follow up required.")
+
+# ------------------------------------------------
 # AI REPORT
-# ---------------------------------------------------
+# ------------------------------------------------
 
 elif page=="AI Report":
 
@@ -259,17 +333,7 @@ elif page=="AI Report":
 
         bmi=weight/(height**2)
 
-        st.write("BMI:",round(bmi,2))
-
-        report=f"""
-
-Patient Name: {name}
-
-BMI: {round(bmi,2)}
-
-Recommendation:
-Maintain healthy lifestyle
-"""
+        report=f"Patient: {name}\nBMI: {round(bmi,2)}\nRecommendation: Healthy lifestyle"
 
         styles=getSampleStyleSheet()
 
@@ -277,7 +341,8 @@ Maintain healthy lifestyle
 
         doc=SimpleDocTemplate(file.name)
 
-        story=[Paragraph("AI Medical Report",styles['Title']),Spacer(1,20),
+        story=[Paragraph("AI Medical Report",styles['Title']),
+        Spacer(1,20),
         Paragraph(report,styles['BodyText'])]
 
         doc.build(story)
@@ -286,34 +351,36 @@ Maintain healthy lifestyle
 
             st.download_button("Download PDF",f,"report.pdf")
 
-# ---------------------------------------------------
-# AI MEDICAL ASSISTANT
-# ---------------------------------------------------
+# ------------------------------------------------
+# AI ASSISTANT
+# ------------------------------------------------
 
 elif page=="AI Medical Assistant":
 
     st.title("💬 AI Medical Assistant")
 
-    question=st.text_input("Ask a medical question")
+    q=st.text_input("Ask a medical question")
 
     if st.button("Ask"):
+        st.info("Connect GPT API here")
 
-        st.info("GPT response placeholder. Add OpenAI API key.")
-
-# ---------------------------------------------------
+# ------------------------------------------------
 # DOCTOR RECOMMENDATION
-# ---------------------------------------------------
+# ------------------------------------------------
 
 elif page=="Doctor Recommendation":
 
     st.title("👨‍⚕ Doctor Recommendation")
 
-    disease=st.selectbox("Select Disease",list(DISEASE_DATABASE.keys()))
+    disease=st.selectbox(
+    "Select Disease",
+    list(DISEASE_DATABASE.keys())
+    )
 
     if disease:
 
         doctor,tips=DISEASE_DATABASE[disease]
 
-        st.success("Specialist Doctor: "+doctor)
+        st.success(f"Consult: {doctor}")
 
-        st.write("Health Tips:",tips)
+        st.write("Advice:",tips)
