@@ -45,7 +45,7 @@ background:#a8b1e5;
 }
 
 .model-box{
-background:#52B2BF;
+background:#123499;
 padding:30px;
 border-radius:15px;
 font-size:20px;
@@ -428,6 +428,7 @@ elif page=="👨‍⚕ Doctor Recommendation":
 
 </div>
 """,unsafe_allow_html=True)
+
 
 
 
