@@ -4,7 +4,7 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet
 import tempfile
 
-st.set_page_config(page_title="AI Healthcare Intelligence System", layout="wide")
+st.set_page_config(page_title="🧬AI Healthcare Intelligence System🩺", layout="wide")
 
 # --------------------------------------------------
 # UI STYLE
@@ -368,3 +368,4 @@ elif page=="👨‍⚕ Doctor Recommendation":
 
 </div>
 """,unsafe_allow_html=True)
+
