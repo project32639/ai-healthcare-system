@@ -134,7 +134,7 @@ page=st.sidebar.radio(
 
 if page=="🏠 Home":
 
-    st.markdown('<div class="title">AI Healthcare Intelligence System</div>',unsafe_allow_html=True)
+    st.markdown('<div class="title">🧬AI Healthcare Intelligence System🩺</div>',unsafe_allow_html=True)
 
     st.markdown("""
 <div class="info-box">
@@ -368,4 +368,5 @@ elif page=="👨‍⚕ Doctor Recommendation":
 
 </div>
 """,unsafe_allow_html=True)
+
 
