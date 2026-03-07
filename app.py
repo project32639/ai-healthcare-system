@@ -5,7 +5,7 @@ from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import inch
 from io import BytesIO
 
-st.set_page_config(page_title="AI Medical Dashboard", layout="wide")
+st.set_page_config(page_title="🧬AI Healthcare Intelligence System🩺", layout="wide")
 
 # ---------------------------------------------------------
 # PAGE STYLE
@@ -51,6 +51,15 @@ border-radius:15px;
 font-size:20px;
 line-height:1.8;
 margin-top:20px;
+transition: all 0.35s ease;
+box-shadow:0 6px 15px rgba(0,0,0,0.25);
+}
+
+.model-box:hover{
+transform:translateY(-8px) scale(1.02);
+box-shadow:0 15px 35px rgba(0,0,0,0.40);
+background:#3d6fb3;
+cursor:pointer;
 }
 
 .report-box{
@@ -138,7 +147,7 @@ if "risk" not in st.session_state:
 
 if page=="🏠 Home":
 
-    st.title("🏥 AI Healthcare Dashboard")
+    st.title("🧬AI Healthcare Intelligence System🩺")
 
     st.markdown("""
 <div class="card-container">
@@ -345,3 +354,4 @@ elif page=="👨‍⚕ Doctor Recommendation":
 
 </div>
 """,unsafe_allow_html=True)
+
